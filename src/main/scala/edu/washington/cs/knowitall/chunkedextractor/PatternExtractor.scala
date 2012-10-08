@@ -1,5 +1,5 @@
 package edu.washington.cs.knowitall
-package tool.extractor
+package chunkedextractor
 
 import java.util.regex.Pattern
 

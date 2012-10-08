@@ -1,4 +1,4 @@
-package edu.washington.cs.knowitall.tool.extractor
+package edu.washington.cs.knowitall.chunkedextractor
 
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification

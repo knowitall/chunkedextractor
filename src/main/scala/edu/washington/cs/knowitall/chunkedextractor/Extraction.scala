@@ -1,5 +1,5 @@
 package edu.washington.cs.knowitall
-package tool.extractor
+package chunkedextractor
 
 import edu.washington.cs.knowitall.collection.immutable.Interval
 import tool.stem.Lemmatized

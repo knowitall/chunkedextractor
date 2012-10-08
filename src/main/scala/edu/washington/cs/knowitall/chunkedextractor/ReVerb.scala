@@ -1,4 +1,4 @@
-package edu.washington.cs.knowitall.tool.extractor
+package edu.washington.cs.knowitall.chunkedextractor
 
 import edu.washington.cs.knowitall.extractor.ReVerbExtractor
 import edu.washington.cs.knowitall.tool.chunk.ChunkedToken

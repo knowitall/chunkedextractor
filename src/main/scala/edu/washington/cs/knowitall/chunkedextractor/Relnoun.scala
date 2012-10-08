@@ -1,5 +1,5 @@
 package edu.washington.cs.knowitall
-package tool.extractor
+package chunkedextractor
 
 import edu.washington.cs.knowitall.tool.stem.Lemmatized
 import scala.collection.JavaConverters._
