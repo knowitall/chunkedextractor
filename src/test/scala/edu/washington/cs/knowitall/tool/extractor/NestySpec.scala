@@ -7,7 +7,7 @@ import edu.washington.cs.knowitall.tool.chunk.OpenNlpChunker
 import edu.washington.cs.knowitall.tool.stem.MorphaStemmer
 
 @RunWith(classOf[JUnitRunner])
-class NestySpec extends Specification {
+object NestySpecTest extends Specification {
   def extract(sentence: String) = {
     val chunker = new OpenNlpChunker
     val nesty = new Nesty
