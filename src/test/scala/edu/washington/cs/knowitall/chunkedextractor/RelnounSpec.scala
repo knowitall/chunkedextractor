@@ -16,121 +16,57 @@ object RelnounSpecTest extends Specification {
     relnoun(lemmatized)
   }
 
-  "appositive" should {
-    val extrs = extract("Barack Obama, the president of the U.S.")
-    "have a single extraction" in {
-      extrs.size must_== 1
-    }
-    "have the correct extraction" in {
-      extrs.head.rel.toString must_== "[is] the president of"
-      extrs.head.arg1.toString must_== "Barack Obama"
-      extrs.head.arg2.toString must_== "the U.S."
-    }
-  }
-
-  "adjective descriptor" should {
-    val extrs = extract("United States president Barack Obama gave a speech today.")
-    "have a single extraction" in {
-      extrs.size must_== 1
-    }
-    "have the correct extraction" in {
-      extrs.head.toString must_== "(Barack Obama; [is] president [of]; United States)"
+  def test(name: String, sentence: String, extraction: (String, String, String)) = {
+    "name" should {
+      val extrs = extract(sentence)
+      "have a single extraction" in {
+        extrs.size must_== 1
+      }
+      "have the correct extraction" in {
+        extrs.head.rel.toString must_== extraction._2
+        extrs.head.arg1.toString must_== extraction._1
+        extrs.head.arg2.toString must_== extraction._3
+      }
     }
   }
 
-  "adjective descriptor" should {
-    val extrs = extract("U.S. president Barack Obama.")
-    "have a single extraction" in {
-      extrs.size must_== 1
-    }
-    "have the correct extraction" in {
-      extrs.head.rel.toString must_== "[is] president [of]"
-      extrs.head.arg1.toString must_== "Barack Obama"
-      extrs.head.arg2.toString must_== "U.S."
-    }
-  }
+  test("appositive", 
+      "Barack Obama, the president of the U.S.", 
+      ("Barack Obama", "[is] the president of", "the U.S."))
 
-  "possessive" should {
-    val extrs = extract("United States' president Barack Obama was in a debate on Wednesday.")
-    "have a single extraction" in {
-      extrs.size must_== 1
-    }
-    "have the correct extraction" in {
-      extrs.head.rel.toString must_== "[is] president [of]"
-      extrs.head.arg1.toString must_== "Barack Obama"
-      extrs.head.arg2.toString must_== "United States"
-    }
-  }
+  test("adjective descriptor", 
+      "United States president Barack Obama gave a speech today.", 
+      ("Barack Obama", "[is] president [of]", "United States"))
 
-  "possessive appositive" should {
-    val extrs = extract("United States' president, Barack Obama, was in a debate on Wednesday.")
-    "have a single extraction" in {
-      extrs.size must_== 1
-    }
-    "have the correct extraction" in {
-      extrs.head.rel.toString must_== "[is] president [of]"
-      extrs.head.arg1.toString must_== "Barack Obama"
-      extrs.head.arg2.toString must_== "United States"
-    }
-  }
-
-  "possessive is" should {
-    val extrs = extract("America's president is Barack Obama.")
-    "have a single extraction" in {
-      extrs.size must_== 1
-    }
-    "have the correct extraction" in {
-      extrs.head.rel.toString must_== "is president [of]"
-      extrs.head.arg1.toString must_== "Barack Obama"
-      extrs.head.arg2.toString must_== "America"
-    }
-  }
-
-  "is possessive" should {
-    val extrs = extract("Barack Obama is America's president.")
-    "have a single extraction" in {
-      extrs.size must_== 1
-    }
-    "have the correct extraction" in {
-      extrs.head.rel.toString must_== "is president [of]"
-      extrs.head.arg1.toString must_== "Barack Obama"
-      extrs.head.arg2.toString must_== "America"
-    }
-  }
-
-  "of is" should {
-    val extrs = extract("The president of the United States is Barack Obama")
-    "have a single extraction" in {
-      extrs.size must_== 1
-    }
-    "have the correct extraction" in {
-      extrs.head.rel.toString must_== "is The president of"
-      extrs.head.arg1.toString must_== "Barack Obama"
-      extrs.head.arg2.toString must_== "the United States"
-    }
-  }
-
-  "possessive reverse" should {
-    val extrs = extract("Barack Obama, America's president, gave a debate on Wednesday.")
-    "have a single extraction" in {
-      extrs.size must_== 1
-    }
-    "have the correct extraction" in {
-      extrs.head.rel.toString must_== "[is] president [of]"
-      extrs.head.arg1.toString must_== "Barack Obama"
-      extrs.head.arg2.toString must_== "America"
-    }
-  }
-
-  "proper noun adjective" should {
-    val extrs = extract("Barack Obama, the US president, gave a debate on Wednesday")
-    "have a single extraction" in {
-      extrs.size must_== 1
-    }
-    "have the correct extraction" in {
-      extrs.head.rel.toString must_== "[is] the president [of]"
-      extrs.head.arg1.toString must_== "Barack Obama"
-      extrs.head.arg2.toString must_== "US"
-    }
-  }
+  test("adjective descriptor",
+      "U.S. president Barack Obama",
+      ("Barack Obama", "[is] president [of]", "U.S."))
+      
+  test("possessive",
+       "United States' president Barack Obama was in a debate on Wednesday.",
+       ("Barack Obama", "[is] president [of]", "United States"))
+       
+  test("possessive appositive",
+       "United States' president, Barack Obama, was in a debate on Wednesday.",
+       ("Barack Obama", "[is] president [of]", "United States"))
+       
+  test("possessive is",
+       "America's president is Barack Obama",
+       ("Barack Obama", "is president [of]", "America"))
+       
+  test("is possessive",
+       "Barack Obama is America's president.",
+       ("Barack Obama", "is president [of]", "America"))
+       
+  test("of is",
+       "The president of the United States is Barack Obama.",
+       ("Barack Obama", "is The president of", "the United States"))
+       
+  test("possessive reverse",
+       "Barack Obama, America's president, gave a debate on Wednesday.",
+       ("Barack Obama", "[is] president [of]", "America"))
+       
+  test("proper noun adjective",
+       "Barack Obama, the US president, gave a debate on Wednesday.",
+       ("Barack Obama", "[is] the president [of]", "US"))
 }
