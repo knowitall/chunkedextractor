@@ -18,3 +18,5 @@ case class BinaryExtraction(arg1: ExtractionPart, rel: ExtractionPart, arg2: Ext
   def text = Iterable(arg1.text, rel.text, arg2.text).mkString(" ")
   def interval = Interval.span(Iterable(arg1.interval, rel.interval, arg2.interval))
 }
+
+case class BinaryExtractionInstance(extr: BinaryExtraction, conf: Option[Double])

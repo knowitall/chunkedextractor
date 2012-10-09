@@ -6,11 +6,18 @@ import edu.washington.cs.knowitall.nlp.ChunkedSentence
 import edu.washington.cs.knowitall.commonlib.Range
 import edu.washington.cs.knowitall.collection.immutable.Interval
 import edu.washington.cs.knowitall.nlp.extraction.ChunkedExtraction
+import edu.washington.cs.knowitall.extractor.conf.ConfidenceFunction
+import edu.washington.cs.knowitall.util.DefaultObjects
+import edu.washington.cs.knowitall.extractor.conf.ReVerbOpenNlpConfFunction
+import edu.washington.cs.knowitall.nlp.extraction.ChunkedBinaryExtraction
 
-class ReVerb(val reverb: ReVerbExtractor) extends Extractor[Seq[ChunkedToken], BinaryExtraction] {
-  def this() = this(new ReVerbExtractor)
+class ReVerb(val reverb: ReVerbExtractor, val conf: Option[ConfidenceFunction] = None) extends Extractor[Seq[ChunkedToken], BinaryExtraction] {
+  def this() = this(new ReVerbExtractor, Some(new ReVerbOpenNlpConfFunction))
   
-  def apply(tokens: Seq[ChunkedToken]) = {
+  private def confidence(extr: ChunkedBinaryExtraction): Option[Double] = 
+    conf map (_ getConf extr)
+  
+  private def reverbExtract(tokens: Seq[ChunkedToken]) = {
     import collection.JavaConverters._
     
     val chunkedSentence = new ChunkedSentence(
@@ -18,13 +25,27 @@ class ReVerb(val reverb: ReVerbExtractor) extends Extractor[Seq[ChunkedToken], B
             tokens.map(_.string).toArray, 
             tokens.map(_.postag).toArray, 
             tokens.map(_.chunk).toArray)
-    val extrs = reverb.extract(chunkedSentence)
     
-    extrs.asScala.map { extr =>
-      def convert(ce: ChunkedExtraction) = {
-        new ExtractionPart(Interval.open(ce.getRange.getStart, ce.getRange.getEnd), ce.getText)
-      }
-      new BinaryExtraction(convert(extr.getArgument1), convert(extr.getRelation), convert(extr.getArgument2))
-    }
+    val extrs = reverb.extract(chunkedSentence)
+    extrs.asScala
+  }
+  
+  private def convertExtraction(extr: ChunkedBinaryExtraction) = {
+    def convertPart(ce: ChunkedExtraction) = 
+      new ExtractionPart(Interval.open(ce.getRange.getStart, ce.getRange.getEnd), ce.getText) 
+    
+     new BinaryExtraction(convertPart(extr.getArgument1), convertPart(extr.getRelation), convertPart(extr.getArgument2))
+  }
+  
+  def apply(tokens: Seq[ChunkedToken]) = {
+    reverbExtract(tokens) map convertExtraction
+  }
+  
+  def extractWithConf(tokens: Seq[ChunkedToken]): Seq[BinaryExtractionInstance] = {
+    val extrs = reverbExtract(tokens)
+    val confs = extrs map this.confidence
+    
+    val converted = (extrs.iterator zip confs.iterator) map { case (extr, conf) => BinaryExtractionInstance(convertExtraction(extr), conf)}
+    converted.toList
   }
 }
