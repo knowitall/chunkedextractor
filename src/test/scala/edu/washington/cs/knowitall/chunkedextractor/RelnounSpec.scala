@@ -41,7 +41,7 @@ object RelnounSpecTest extends Specification {
   "adjective descriptor" should {
     val extrs = extract("U.S. president Barack Obama.")
     "have a single extraction" in {
-      extrs.size == 1
+      extrs.size must_== 1
     }
     "have the correct extraction" in {
       extrs.head.rel.toString must_== "[is] president [of]"
@@ -53,7 +53,7 @@ object RelnounSpecTest extends Specification {
   "possessive" should {
     val extrs = extract("United States' president Barack Obama was in a debate on Wednesday.")
     "have a single extraction" in {
-      extrs.size == 1
+      extrs.size must_== 1
     }
     "have the correct extraction" in {
       extrs.head.rel.toString must_== "[is] president [of]"
@@ -65,7 +65,7 @@ object RelnounSpecTest extends Specification {
   "possessive appositive" should {
     val extrs = extract("United States' president, Barack Obama, was in a debate on Wednesday.")
     "have a single extraction" in {
-      extrs.size == 1
+      extrs.size must_== 1
     }
     "have the correct extraction" in {
       extrs.head.rel.toString must_== "[is] president [of]"
@@ -77,7 +77,7 @@ object RelnounSpecTest extends Specification {
   "possessive is" should {
     val extrs = extract("America's president is Barack Obama.")
     "have a single extraction" in {
-      extrs.size == 1
+      extrs.size must_== 1
     }
     "have the correct extraction" in {
       extrs.head.rel.toString must_== "is president [of]"
@@ -89,7 +89,7 @@ object RelnounSpecTest extends Specification {
   "is possessive" should {
     val extrs = extract("Barack Obama is America's president.")
     "have a single extraction" in {
-      extrs.size == 1
+      extrs.size must_== 1
     }
     "have the correct extraction" in {
       extrs.head.rel.toString must_== "is president [of]"
@@ -101,7 +101,7 @@ object RelnounSpecTest extends Specification {
   "of is" should {
     val extrs = extract("The president of the United States is Barack Obama")
     "have a single extraction" in {
-      extrs.size == 1
+      extrs.size must_== 1
     }
     "have the correct extraction" in {
       extrs.head.rel.toString must_== "is The president of"
@@ -113,7 +113,7 @@ object RelnounSpecTest extends Specification {
   "possessive reverse" should {
     val extrs = extract("Barack Obama, America's president, gave a debate on Wednesday.")
     "have a single extraction" in {
-      extrs.size == 1
+      extrs.size must_== 1
     }
     "have the correct extraction" in {
       extrs.head.rel.toString must_== "[is] president [of]"
@@ -125,7 +125,7 @@ object RelnounSpecTest extends Specification {
   "proper noun adjective" should {
     val extrs = extract("Barack Obama, the US president, gave a debate on Wednesday")
     "have a single extraction" in {
-      extrs.size == 1
+      extrs.size must_== 1
     }
     "have the correct extraction" in {
       extrs.head.rel.toString must_== "[is] the president [of]"

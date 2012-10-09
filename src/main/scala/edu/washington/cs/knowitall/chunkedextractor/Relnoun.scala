@@ -34,7 +34,6 @@ class Relnoun(val encloseInferredWords: Boolean = true) {
 object Relnoun {
     type Token = Lemmatized[ChunkedToken]
 
-
     val properNounChunk = "(?:<chunk=\"B-NP\" & pos=\"NNPS?\"> <chunk=\"I-NP\">*) | (?:<chunk=\"B-NP\"> <chunk=\"I-NP\">* <chunk=\"I-NP\" & pos=\"NNPS?\"> <chunk=\"I-NP\">*)";
 
     private final val nouns = Array("abbot",
@@ -420,8 +419,8 @@ object Relnoun {
    * @author schmmd
    */
   class PossessiveIsExtractor(private val encloseInferredWords: Boolean, private val nouns: Array[String])
-    extends BinaryPatternExtractor[BinaryExtraction](PossessiveIsExtractor.pattern.replace("${relnoun}", nouns.mkString(" "))) {
-
+    extends BinaryPatternExtractor[BinaryExtraction](PossessiveIsExtractor.pattern.replace("${relnoun}", nouns.mkString("|"))) {
+    
     private val inferredOf = if (encloseInferredWords) "[of]" else "of"
 
     override def buildExtraction(tokens: Seq[Token], m: Match[Token]) = {
@@ -436,12 +435,12 @@ object Relnoun {
   object PossessiveIsExtractor {
     val pattern =
       // {nouns} (no preposition)
-      "(<pos=\"NNS?|NNPS?\">+)" +
+      "(<pos='NNS?|NNPS?'>+)" +
         // {possessive}
-        "<pos=\"POS\">" +
+        "<pos='POS'>" +
         // {adverb} {adjective} {relnoun}
-        "(<pos=\"RB\">* <pos=\"JJ|VBD|VBN\">* <string=\"${relnoun}\" & pos=\"NN\">)" +
-        // {comma}
+        "(<pos='RB'>* <pos='JJ|VBD|VBN'>* <string='${relnoun}' & pos='NN'>)" +
+        // be
         "(<lemma=\"be\">)" +
         // {proper np chunk}
         "(" + properNounChunk + ")";
