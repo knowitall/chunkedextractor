@@ -4,6 +4,7 @@ package chunkedextractor
 import edu.washington.cs.knowitall.collection.immutable.Interval
 import tool.stem.Lemmatized
 import tool.chunk.ChunkedToken
+import edu.washington.cs.knowitall.tool.tokenize.Token
 
 case class ExtractionPart(interval: Interval, text: String) {
   def this(tokens: Seq[Lemmatized[ChunkedToken]], interval: Interval) =
@@ -19,4 +20,4 @@ case class BinaryExtraction(arg1: ExtractionPart, rel: ExtractionPart, arg2: Ext
   def interval = Interval.span(Iterable(arg1.interval, rel.interval, arg2.interval))
 }
 
-case class BinaryExtractionInstance(extr: BinaryExtraction, conf: Option[Double])
+case class BinaryExtractionInstance[T](extr: BinaryExtraction, sent: Seq[T])

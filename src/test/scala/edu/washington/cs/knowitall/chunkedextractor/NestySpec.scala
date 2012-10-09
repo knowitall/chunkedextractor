@@ -22,7 +22,7 @@ object NestySpecTest extends Specification {
       extrs.size must_== 1
     }
     "have the correct extraction" in {
-      extrs.head.toString must_== "(Michael; said that; nesty extends reverb)"
+      extrs.head.extr.toString must_== "(Michael; said that; nesty extends reverb)"
     }
   }
 
@@ -32,7 +32,7 @@ object NestySpecTest extends Specification {
       extrs.size must_== 1
     }
     "have the correct extraction" in {
-      extrs.head.toString must_== "(Michael; said; nesty extends reverb)"
+      extrs.head.extr.toString must_== "(Michael; said; nesty extends reverb)"
     }
   }
 }

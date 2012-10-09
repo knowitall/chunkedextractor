@@ -11,16 +11,16 @@ import edu.washington.cs.knowitall.tool.chunk.OpenNlpChunker
 import edu.washington.cs.knowitall.tool.stem.MorphaStemmer
 
 class Nesty
-  extends BinaryPatternExtractor[BinaryExtraction](Nesty.pattern) {
+  extends BinaryPatternExtractor[BinaryExtractionInstance[PatternExtractor.Token]](Nesty.pattern) {
   
   lazy val reverb = new ReVerb
   
-  override def apply(tokens: Seq[PatternExtractor.Token]): Iterable[BinaryExtraction] = {
+  override def apply(tokens: Seq[PatternExtractor.Token]): Iterable[BinaryExtractionInstance[PatternExtractor.Token]] = {
     val reverbExtractions = reverb.extract(tokens.map(_.token))
-    apply(tokens, reverbExtractions)
+    apply(tokens, reverbExtractions.map(_.extr))
   }
 
-  def apply(tokens: Seq[PatternExtractor.Token], reverbExtractions: Iterable[BinaryExtraction]): Iterable[BinaryExtraction] = {
+  def apply(tokens: Seq[PatternExtractor.Token], reverbExtractions: Iterable[BinaryExtraction]): Iterable[BinaryExtractionInstance[PatternExtractor.Token]] = {
     val transformed = 
       tokens.iterator.zipWithIndex.map { case (t, i) =>
         val ext = reverbExtractions.flatMap {
@@ -48,13 +48,15 @@ class Nesty
   override def buildExtraction(tokens: Seq[PatternExtractor.Token], m: Match[PatternExtractor.Token]) = {
     val relation = new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.group("baseRelation")))
     
-    new Nesty.NestedExtraction(
+    val extr = new Nesty.NestedExtraction(
       new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.group("arg1"))),
       new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.group("nestedRelation"))),
       new BinaryExtraction(
         new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.group("baseArg1"))),
         relation,
         new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.group("baseArg2")))))
+    
+    new BinaryExtractionInstance(extr, tokens)
   }
 }
 

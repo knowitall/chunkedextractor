@@ -23,9 +23,9 @@ object RelnounSpecTest extends Specification {
         extrs.size must_== 1
       }
       "have the correct extraction" in {
-        extrs.head.rel.toString must_== extraction._2
-        extrs.head.arg1.toString must_== extraction._1
-        extrs.head.arg2.toString must_== extraction._3
+        extrs.head.extr.rel.toString must_== extraction._2
+        extrs.head.extr.arg1.toString must_== extraction._1
+        extrs.head.extr.arg2.toString must_== extraction._3
       }
     }
   }

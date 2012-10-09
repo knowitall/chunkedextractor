@@ -11,7 +11,7 @@ import edu.washington.cs.knowitall.util.DefaultObjects
 import edu.washington.cs.knowitall.extractor.conf.ReVerbOpenNlpConfFunction
 import edu.washington.cs.knowitall.nlp.extraction.ChunkedBinaryExtraction
 
-class ReVerb(val reverb: ReVerbExtractor, val conf: Option[ConfidenceFunction] = None) extends Extractor[Seq[ChunkedToken], BinaryExtraction] {
+class ReVerb(val reverb: ReVerbExtractor, val conf: Option[ConfidenceFunction] = None) extends Extractor[Seq[ChunkedToken], BinaryExtractionInstance[ChunkedToken]] {
   def this() = this(new ReVerbExtractor, Some(new ReVerbOpenNlpConfFunction))
   
   private def confidence(extr: ChunkedBinaryExtraction): Option[Double] = 
@@ -38,14 +38,14 @@ class ReVerb(val reverb: ReVerbExtractor, val conf: Option[ConfidenceFunction] =
   }
   
   def apply(tokens: Seq[ChunkedToken]) = {
-    reverbExtract(tokens) map convertExtraction
+    reverbExtract(tokens) map convertExtraction map (extr => BinaryExtractionInstance(extr, tokens))
   }
   
-  def extractWithConf(tokens: Seq[ChunkedToken]): Seq[BinaryExtractionInstance] = {
+  def extractWithConf(tokens: Seq[ChunkedToken]): Seq[(Option[Double], BinaryExtractionInstance[ChunkedToken])] = {
     val extrs = reverbExtract(tokens)
     val confs = extrs map this.confidence
     
-    val converted = (extrs.iterator zip confs.iterator) map { case (extr, conf) => BinaryExtractionInstance(convertExtraction(extr), conf)}
-    converted.toList
+    val converted = extrs map (extr => BinaryExtractionInstance(convertExtraction(extr), tokens))
+    (confs.iterator zip converted.iterator).toList
   }
 }
