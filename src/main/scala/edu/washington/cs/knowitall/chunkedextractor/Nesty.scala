@@ -65,7 +65,7 @@ object Nesty {
   type Token= ChunkedToken
   type NestyExtractionInstance = BinaryExtractionInstance[Nesty.NestedExtraction]
 
-  class NestedExtraction(arg1: ExtractionPart[Token], rel: ExtractionPart[Token], nested: BinaryExtraction[Token])
+  class NestedExtraction(arg1: ExtractionPart[Token], rel: ExtractionPart[Token], nested: BinaryExtraction[Nesty.Token])
     extends BinaryExtraction(arg1, rel, new ExtractionPart[Token](nested.text, nested.tokens, nested.interval)) {
   }
 
