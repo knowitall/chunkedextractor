@@ -11,7 +11,8 @@ import edu.washington.cs.knowitall.tool.chunk.OpenNlpChunker
 import edu.washington.cs.knowitall.tool.stem.MorphaStemmer
 import Relnoun._
 
-class Relnoun(val encloseInferredWords: Boolean = true) {
+class Relnoun(val encloseInferredWords: Boolean = true)
+extends Extractor[Seq[PatternExtractor.Token], BinaryExtractionInstance[Relnoun.Token]] {
   val subextractors: Seq[BinaryPatternExtractor[BinaryExtractionInstance[Relnoun.Token]]] = Seq(
       new AppositiveExtractor(this.encloseInferredWords, Relnoun.nouns),
       new AdjectiveDescriptorExtractor(this.encloseInferredWords, Relnoun.nouns),
