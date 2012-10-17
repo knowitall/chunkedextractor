@@ -19,6 +19,9 @@ import edu.washington.cs.knowitall.tool.stem.Lemmatized
 
 object PatternExtractor {
   type Token = Lemmatized[ChunkedToken]
+  object Token {
+    implicit def patternTokenAsToken(lemmatized: PatternExtractor.Token): edu.washington.cs.knowitall.tool.tokenize.Token = lemmatized.token
+  }
 
   implicit def guavaFromFunction[A, B](f: A => B) = new GuavaFunction[A, B] {
     override def apply(a: A) = f(a)

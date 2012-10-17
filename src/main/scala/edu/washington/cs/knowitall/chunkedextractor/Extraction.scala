@@ -6,18 +6,24 @@ import tool.stem.Lemmatized
 import tool.chunk.ChunkedToken
 import edu.washington.cs.knowitall.tool.tokenize.Token
 
-case class ExtractionPart(interval: Interval, text: String) {
-  def this(tokens: Seq[Lemmatized[ChunkedToken]], interval: Interval) =
-    this(interval, tokens.view(interval.start, interval.end).iterator.map(_.token.string).mkString(" "))
-    
+case class ExtractionPart[T <% Token](text: String, tokens: Seq[T], interval: Interval) {
   override def toString = text
 }
 
-case class BinaryExtraction(arg1: ExtractionPart, rel: ExtractionPart, arg2: ExtractionPart) {
-  override def toString = Iterable(arg1, rel, arg2).mkString("(", "; ", ")")
-  
-  def text = Iterable(arg1.text, rel.text, arg2.text).mkString(" ")
-  def interval = Interval.span(Iterable(arg1.interval, rel.interval, arg2.interval))
+object ExtractionPart {
+  def fromSentenceTokens[T <% Token](sentenceTokens: Seq[T], interval: Interval, text: String) =
+    new ExtractionPart[T](text, sentenceTokens.view(interval.start, interval.end), interval)
+
+  def fromSentenceTokens[T <% Token](sentenceTokens: Seq[T], interval: Interval) =
+    new ExtractionPart(sentenceTokens.view(interval.start, interval.end).iterator.map(_.string).mkString(" "), sentenceTokens.view(interval.start, interval.end), interval)
 }
 
-case class BinaryExtractionInstance[T](extr: BinaryExtraction, sent: Seq[T])
+case class BinaryExtraction[T <% Token](arg1: ExtractionPart[T], rel: ExtractionPart[T], arg2: ExtractionPart[T]) {
+  override def toString = Iterable(arg1, rel, arg2).mkString("(", "; ", ")")
+
+  def text = Iterable(arg1.text, rel.text, arg2.text).mkString(" ")
+  def interval = Interval.span(Iterable(arg1.interval, rel.interval, arg2.interval))
+  def tokens = arg1.tokens ++ rel.tokens ++ arg2.tokens
+}
+
+case class BinaryExtractionInstance[T <% Token](extr: BinaryExtraction[T], sent: Seq[T])

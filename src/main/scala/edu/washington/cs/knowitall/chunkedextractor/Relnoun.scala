@@ -12,7 +12,7 @@ import edu.washington.cs.knowitall.tool.stem.MorphaStemmer
 import Relnoun._
 
 class Relnoun(val encloseInferredWords: Boolean = true) {
-  val subextractors: Seq[BinaryPatternExtractor[BinaryExtractionInstance[PatternExtractor.Token]]] = Seq(
+  val subextractors: Seq[BinaryPatternExtractor[BinaryExtractionInstance[Relnoun.Token]]] = Seq(
       new AppositiveExtractor(this.encloseInferredWords, Relnoun.nouns),
       new AdjectiveDescriptorExtractor(this.encloseInferredWords, Relnoun.nouns),
       new PossessiveExtractor(this.encloseInferredWords, Relnoun.nouns),
@@ -23,7 +23,7 @@ class Relnoun(val encloseInferredWords: Boolean = true) {
       new PossessiveReverseExtractor(this.encloseInferredWords, Relnoun.nouns),
       new ProperNounAdjectiveExtractor(this.encloseInferredWords, Relnoun.nouns))
 
-  def apply(tokens: Seq[Lemmatized[ChunkedToken]]): Seq[BinaryExtractionInstance[PatternExtractor.Token]] = {
+  def apply(tokens: Seq[Lemmatized[ChunkedToken]]): Seq[BinaryExtractionInstance[Relnoun.Token]] = {
     for (
       sub <- subextractors;
       extr <- sub(tokens)
@@ -32,7 +32,7 @@ class Relnoun(val encloseInferredWords: Boolean = true) {
 }
 
 object Relnoun {
-    type Token = Lemmatized[ChunkedToken]
+    type Token = ChunkedToken
 
     val properNounChunk = "(?:<chunk=\"B-NP\" & pos=\"NNPS?\"> <chunk=\"I-NP\">*) | (?:<chunk=\"B-NP\"> <chunk=\"I-NP\">* <chunk=\"I-NP\" & pos=\"NNPS?\"> <chunk=\"I-NP\">*)";
 
@@ -261,16 +261,17 @@ object Relnoun {
    *
    */
   class AppositiveExtractor(private val encloseInferredWords: Boolean, private val nouns: Array[String])
-    extends BinaryPatternExtractor[BinaryExtractionInstance[PatternExtractor.Token]](
+    extends BinaryPatternExtractor[BinaryExtractionInstance[Relnoun.Token]](
       AppositiveExtractor.pattern.replace("${relnoun}", nouns.mkString("|"))) {
     val inferredIs = if (encloseInferredWords) "[is]" else "is"
 
-    override def buildExtraction(tokens: Seq[Token], m: Match[Token]) = {
+    override def buildExtraction(patternTokens: Seq[PatternExtractor.Token], m: Match[PatternExtractor.Token]) = {
+      val tokens = patternTokens.map(_.token)
       val extr = new BinaryExtraction(
-        new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.groups().get(1))),
-        new ExtractionPart(PatternExtractor.intervalFromGroup(m.groups().get(2)), this.inferredIs + " " + m.groups().get(2).tokens().asScala.map(_.token.string).mkString(" ")),
-        new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.groups().get(3))))
-      
+        ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups().get(1))),
+        ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups().get(2)), this.inferredIs + " " + m.groups().get(2).tokens().asScala.map(_.token.string).mkString(" ")),
+        ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups().get(3))))
+
       BinaryExtractionInstance(extr, tokens)
     }
   }
@@ -301,13 +302,15 @@ object Relnoun {
      *
      */
     class AdjectiveDescriptorExtractor(private val encloseInferredWords: Boolean, private val nouns: Array[String])
-    extends BinaryPatternExtractor[BinaryExtractionInstance[PatternExtractor.Token]](
+    extends BinaryPatternExtractor[BinaryExtractionInstance[Relnoun.Token]](
      AdjectiveDescriptorExtractor.pattern.replace("${relnoun}", nouns.mkString("|"))) {
 
      private val inferredIs = if (encloseInferredWords) "[is]" else "is"
      private val inferredOf = if (encloseInferredWords) "[of]" else "of"
 
-    override def buildExtraction(tokens: Seq[Token], m: Match[Token]) = {
+    override def buildExtraction(patternTokens: Seq[PatternExtractor.Token], m: Match[PatternExtractor.Token]): BinaryExtractionInstance[Relnoun.Token] = {
+      val tokens = patternTokens.map(_.token)
+
       val adjectiveGroup = m.group("adj") match {
         case g if g.text.isEmpty => None
         case g => Some(g)
@@ -317,18 +320,18 @@ object Relnoun {
         adj.tokens.iterator.asScala.map(_.token.string).mkString(" ")
       }
 
-      val relation = new ExtractionPart(PatternExtractor.intervalFromGroup(m.group("pred")), inferredIs +
+      val relation = ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.group("pred")), inferredIs +
         adjective.map(" " + _ + " ").getOrElse(" ") +
         m.group("pred").tokens.iterator.asScala.map(_.token.string).mkString(" ") + " " + inferredOf)
 
       val arg2Group = m.group("arg2");
-      
+
       val extr = new BinaryExtraction(
-        new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.group("arg1"))),
+        ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.group("arg1"))),
         relation,
-        new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(arg2Group)))
-      
-      BinaryExtractionInstance(extr, tokens)
+        ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(arg2Group)))
+
+      BinaryExtractionInstance[Relnoun.Token](extr, tokens)
     }
   }
 
@@ -353,19 +356,20 @@ object Relnoun {
    *
    */
   class PossessiveExtractor(private val encloseInferredWords: Boolean, private val nouns: Array[String])
-    extends BinaryPatternExtractor[BinaryExtractionInstance[PatternExtractor.Token]](PossessiveExtractor.pattern.replace("${relnoun}", nouns.mkString("|"))) {
+    extends BinaryPatternExtractor[BinaryExtractionInstance[Relnoun.Token]](PossessiveExtractor.pattern.replace("${relnoun}", nouns.mkString("|"))) {
 
     private val inferredIs = if (encloseInferredWords) "[is]" else "is"
     private val inferredOf = if (encloseInferredWords) "[of]" else "of"
 
-    override def buildExtraction(tokens: Seq[Token], m: Match[Token]) = {
-      val relation = new ExtractionPart(PatternExtractor.intervalFromGroup(m.groups().get(2)), inferredIs + " " + m.groups().get(2).tokens.iterator.asScala.map(_.token.string).mkString(" ") + " " + inferredOf)
+    override def buildExtraction(patternTokens: Seq[PatternExtractor.Token], m: Match[PatternExtractor.Token]) = {
+      val tokens = patternTokens.map(_.token)
+      val relation = ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups().get(2)), inferredIs + " " + m.groups().get(2).tokens.iterator.asScala.map(_.token.string).mkString(" ") + " " + inferredOf)
 
       val extr = new BinaryExtraction(
-        new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.groups.get(3))),
+        ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups.get(3))),
         relation,
-        new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.groups.get(1))))
-      
+        ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups.get(1))))
+
       BinaryExtractionInstance(extr, tokens)
     }
   }
@@ -392,17 +396,18 @@ object Relnoun {
    *
    */
   class PossessiveAppositiveExtractor(private val encloseInferredWords: Boolean, private val nouns: Array[String])
-    extends BinaryPatternExtractor[BinaryExtractionInstance[PatternExtractor.Token]](PossessiveAdjectiveExtractor.pattern.replace("${relnoun}", nouns.mkString("|"))) {
+    extends BinaryPatternExtractor[BinaryExtractionInstance[Relnoun.Token]](PossessiveAdjectiveExtractor.pattern.replace("${relnoun}", nouns.mkString("|"))) {
     private val inferredIs = if (encloseInferredWords) "[is]" else "is"
     private val inferredOf = if (encloseInferredWords) "[of]" else "of"
 
-    override def buildExtraction(tokens: Seq[Token], m: Match[Token]) = {
-      val relation = new ExtractionPart(PatternExtractor.intervalFromGroup(m.groups.get(2)), inferredIs + " " + m.groups.get(2).tokens.iterator.asScala.map(_.token.string).mkString(" ") + " " + inferredOf)
+    override def buildExtraction(patternTokens: Seq[PatternExtractor.Token], m: Match[PatternExtractor.Token]) = {
+      val tokens = patternTokens.map(_.token)
+      val relation = ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups.get(2)), inferredIs + " " + m.groups.get(2).tokens.iterator.asScala.map(_.token.string).mkString(" ") + " " + inferredOf)
       val extr = new BinaryExtraction(
-        new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.groups.get(3))),
+        ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups.get(3))),
         relation,
-        new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.groups.get(1))))
-      
+        ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups.get(1))))
+
       BinaryExtractionInstance(extr, tokens)
     }
   }
@@ -428,17 +433,18 @@ object Relnoun {
    * @author schmmd
    */
   class PossessiveIsExtractor(private val encloseInferredWords: Boolean, private val nouns: Array[String])
-    extends BinaryPatternExtractor[BinaryExtractionInstance[PatternExtractor.Token]](PossessiveIsExtractor.pattern.replace("${relnoun}", nouns.mkString("|"))) {
-    
+    extends BinaryPatternExtractor[BinaryExtractionInstance[Relnoun.Token]](PossessiveIsExtractor.pattern.replace("${relnoun}", nouns.mkString("|"))) {
+
     private val inferredOf = if (encloseInferredWords) "[of]" else "of"
 
-    override def buildExtraction(tokens: Seq[Token], m: Match[Token]) = {
-      val relation = new ExtractionPart(PatternExtractor.intervalFromGroup(m.groups().get(2)), m.groups().get(3).tokens.iterator.asScala.map(_.token.string).mkString(" ") + " " + m.groups().get(2).tokens.iterator.asScala.map(_.token.string).mkString(" ") + " " + inferredOf)
+    override def buildExtraction(patternTokens: Seq[PatternExtractor.Token], m: Match[PatternExtractor.Token]) = {
+      val tokens = patternTokens.map(_.token)
+      val relation = ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups().get(2)), m.groups().get(3).tokens.iterator.asScala.map(_.token.string).mkString(" ") + " " + m.groups().get(2).tokens.iterator.asScala.map(_.token.string).mkString(" ") + " " + inferredOf)
       val extr = new BinaryExtraction(
-        new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.groups.get(4))),
+        ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups.get(4))),
         relation,
-        new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.groups.get(1))));
-      
+        ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups.get(1))));
+
       BinaryExtractionInstance(extr, tokens)
     }
   }
@@ -464,17 +470,18 @@ object Relnoun {
    * @author schmmd
    */
   class IsPossessiveExtractor(private val encloseInferredWords: Boolean, private val nouns: Array[String])
-  extends BinaryPatternExtractor[BinaryExtractionInstance[PatternExtractor.Token]](IsPossessiveExtractor.pattern.replace("${relnoun}", nouns.mkString("|"))) {
+  extends BinaryPatternExtractor[BinaryExtractionInstance[Relnoun.Token]](IsPossessiveExtractor.pattern.replace("${relnoun}", nouns.mkString("|"))) {
 
     private val inferredOf = if (encloseInferredWords) "[of]" else "of"
 
-    override def buildExtraction(tokens: Seq[Token], m: Match[Token]) = {
-      val relation = new ExtractionPart(PatternExtractor.intervalFromGroup(m.groups().get(4)), m.groups().get(2).tokens.iterator.asScala.map(_.token.string).mkString(" ") + " " + m.groups().get(4).tokens.iterator.asScala.map(_.token.string).mkString(" ") + " " + inferredOf)
+    override def buildExtraction(patternTokens: Seq[PatternExtractor.Token], m: Match[PatternExtractor.Token]) = {
+      val tokens = patternTokens.map(_.token)
+      val relation = ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups().get(4)), m.groups().get(2).tokens.iterator.asScala.map(_.token.string).mkString(" ") + " " + m.groups().get(4).tokens.iterator.asScala.map(_.token.string).mkString(" ") + " " + inferredOf)
       val extr = new BinaryExtraction(
-        new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.groups().get(1))),
+        ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups().get(1))),
         relation,
-        new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.groups().get(3))))
-      
+        ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups().get(3))))
+
       BinaryExtractionInstance(extr, tokens)
     }
   }
@@ -496,15 +503,16 @@ object Relnoun {
    * @author schmmd
    */
   class OfIsExtractor(private val encloseInferredWords: Boolean, private val nouns: Array[String])
-    extends BinaryPatternExtractor[BinaryExtractionInstance[PatternExtractor.Token]](OfIsExtractor.pattern.replace("${relnoun}", nouns.mkString("|"))) {
+    extends BinaryPatternExtractor[BinaryExtractionInstance[Relnoun.Token]](OfIsExtractor.pattern.replace("${relnoun}", nouns.mkString("|"))) {
 
-    override def buildExtraction(tokens: Seq[Token], m: Match[Token]) = {
-      val relation = new ExtractionPart(PatternExtractor.intervalFromGroup(m.groups().get(1)), m.groups().get(3).tokens.iterator.asScala.map(_.token.string).mkString(" ") + " " + m.groups().get(1).tokens.iterator.asScala.map(_.token.string).mkString(" "))
+    override def buildExtraction(patternTokens: Seq[PatternExtractor.Token], m: Match[PatternExtractor.Token]) = {
+      val tokens = patternTokens.map(_.token)
+      val relation = ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups().get(1)), m.groups().get(3).tokens.iterator.asScala.map(_.token.string).mkString(" ") + " " + m.groups().get(1).tokens.iterator.asScala.map(_.token.string).mkString(" "))
       val extr = new BinaryExtraction(
-        new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.groups().get(4))),
+        ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups().get(4))),
         relation,
-        new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.groups().get(2))))
-      
+        ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups().get(2))))
+
       BinaryExtractionInstance(extr, tokens)
     }
   }
@@ -526,18 +534,19 @@ object Relnoun {
    * @author schmmd
    */
   class PossessiveReverseExtractor(private val encloseInferredWords: Boolean, private val nouns: Array[String])
-    extends BinaryPatternExtractor[BinaryExtractionInstance[PatternExtractor.Token]](PossessiveReverseExtractor.pattern.replace("${relnoun}", nouns.mkString("|"))) {
+    extends BinaryPatternExtractor[BinaryExtractionInstance[Relnoun.Token]](PossessiveReverseExtractor.pattern.replace("${relnoun}", nouns.mkString("|"))) {
 
     private val inferredIs = if (encloseInferredWords) "[is]" else "is"
     private val inferredOf = if (encloseInferredWords) "[of]" else "of"
 
-    override def buildExtraction(tokens: Seq[Token], m: Match[Token]) = {
-      val relation = new ExtractionPart(PatternExtractor.intervalFromGroup(m.groups().get(3)), inferredIs + " " + m.groups().get(3).tokens.iterator.asScala.map(_.token.string).mkString(" ") + " " + inferredOf);
+    override def buildExtraction(patternTokens: Seq[PatternExtractor.Token], m: Match[PatternExtractor.Token]) = {
+      val tokens = patternTokens.map(_.token)
+      val relation = ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups().get(3)), inferredIs + " " + m.groups().get(3).tokens.iterator.asScala.map(_.token.string).mkString(" ") + " " + inferredOf);
       val extr = new BinaryExtraction(
-        new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.groups().get(1))),
+        ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups().get(1))),
         relation,
-        new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.groups().get(2))))
-      
+        ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups().get(2))))
+
       BinaryExtractionInstance(extr, tokens)
     }
   }
@@ -567,17 +576,18 @@ object Relnoun {
    * @author schmmd
    */
   class ProperNounAdjectiveExtractor(private val encloseInferredWords: Boolean, private val nouns: Array[String])
-    extends BinaryPatternExtractor[BinaryExtractionInstance[PatternExtractor.Token]](ProperNounAdjectiveExtractor.pattern.replace("${relnoun}", nouns.mkString("|"))) {
+    extends BinaryPatternExtractor[BinaryExtractionInstance[Relnoun.Token]](ProperNounAdjectiveExtractor.pattern.replace("${relnoun}", nouns.mkString("|"))) {
     private val inferredIs = if (encloseInferredWords) "[is]" else "is"
     private val inferredOf = if (encloseInferredWords) "[of]" else "of"
 
-    override def buildExtraction(tokens: Seq[Token], m: Match[Token]) = {
-      val relation = new ExtractionPart(PatternExtractor.intervalFromGroup(m.groups().get(4)), inferredIs + " " + (m.groups().get(2).tokens.iterator.asScala.map(_.token.string) ++ m.groups().get(4).tokens.iterator.asScala.map(_.token.string)).mkString(" ") + " " + inferredOf)
+    override def buildExtraction(patternTokens: Seq[PatternExtractor.Token], m: Match[PatternExtractor.Token]) = {
+      val tokens = patternTokens.map(_.token)
+      val relation = ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups().get(4)), inferredIs + " " + (m.groups().get(2).tokens.iterator.asScala.map(_.token.string) ++ m.groups().get(4).tokens.iterator.asScala.map(_.token.string)).mkString(" ") + " " + inferredOf)
       val extr = new BinaryExtraction(
-        new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.groups().get(1))),
+        ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups().get(1))),
         relation,
-        new ExtractionPart(tokens, PatternExtractor.intervalFromGroup(m.groups().get(3))))
-      
+        ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups().get(3))))
+
       BinaryExtractionInstance(extr, tokens)
     }
   }
