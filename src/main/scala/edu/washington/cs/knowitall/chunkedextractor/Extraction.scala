@@ -6,7 +6,7 @@ import tool.stem.Lemmatized
 import tool.chunk.ChunkedToken
 import edu.washington.cs.knowitall.tool.tokenize.Token
 
-case class ExtractionPart[T <% Token](text: String, tokens: Seq[T], interval: Interval) {
+case class ExtractionPart[+T <% Token](text: String, tokens: Seq[T], interval: Interval) {
   override def toString = text
 }
 
@@ -18,7 +18,7 @@ object ExtractionPart {
     new ExtractionPart(sentenceTokens.view(interval.start, interval.end).iterator.map(_.string).mkString(" "), sentenceTokens.view(interval.start, interval.end), interval)
 }
 
-case class BinaryExtraction[T <% Token](arg1: ExtractionPart[T], rel: ExtractionPart[T], arg2: ExtractionPart[T]) {
+case class BinaryExtraction[+T <% Token](arg1: ExtractionPart[T], rel: ExtractionPart[T], arg2: ExtractionPart[T]) {
   override def toString = Iterable(arg1, rel, arg2).mkString("(", "; ", ")")
 
   def text = Iterable(arg1.text, rel.text, arg2.text).mkString(" ")
@@ -26,4 +26,4 @@ case class BinaryExtraction[T <% Token](arg1: ExtractionPart[T], rel: Extraction
   def tokens = arg1.tokens ++ rel.tokens ++ arg2.tokens
 }
 
-case class BinaryExtractionInstance[T <% Token](extr: BinaryExtraction[T], sent: Seq[T])
+case class BinaryExtractionInstance[+T <% Token](extr: BinaryExtraction[T], sent: Seq[T])

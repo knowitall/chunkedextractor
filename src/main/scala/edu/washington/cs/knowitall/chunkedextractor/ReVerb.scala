@@ -14,8 +14,10 @@ import edu.washington.cs.knowitall.nlp.extraction.ChunkedBinaryExtraction
 class ReVerb(val reverb: ReVerbExtractor, val conf: Option[ConfidenceFunction] = None) extends Extractor[Seq[ChunkedToken], BinaryExtractionInstance[ChunkedToken]] {
   def this() = this(new ReVerbExtractor, Some(new ReVerbOpenNlpConfFunction))
 
-  private def confidence(extr: ChunkedBinaryExtraction): Option[Double] =
-    conf map (_ getConf extr)
+  private def confidence(extr: ChunkedBinaryExtraction): Double =
+    (conf map (_ getConf extr)).getOrElse {
+      throw new IllegalArgumentException("No confidence function defined.")
+    }
 
   private def reverbExtract(tokens: Seq[ChunkedToken]) = {
     import collection.JavaConverters._
@@ -43,7 +45,7 @@ class ReVerb(val reverb: ReVerbExtractor, val conf: Option[ConfidenceFunction] =
     reverbExtract(tokens) map convertExtraction(tokens) map (extr => BinaryExtractionInstance(extr, tokens))
   }
 
-  def extractWithConf(tokens: Seq[ChunkedToken]): Seq[(Option[Double], BinaryExtractionInstance[ChunkedToken])] = {
+  def extractWithConfidence(tokens: Seq[ChunkedToken]): Seq[(Double, BinaryExtractionInstance[ChunkedToken])] = {
     val extrs = reverbExtract(tokens)
     val confs = extrs map this.confidence
 
