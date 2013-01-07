@@ -32,7 +32,7 @@ object PatternExtractor {
   }
 
   def compile(pattern: String) =
-    RegularExpression.compile(pattern, (expression: String) => {
+    openregex.Pattern.compile(pattern, (expression: String) => {
       val valuePattern = Pattern.compile("([\"'])(.*)\\1")
 
       val baseExpr = new Expression.BaseExpression[Token](expression) {
@@ -63,26 +63,25 @@ object PatternExtractor {
       baseExpr: Expression.BaseExpression[Token]
     })
 
-  def intervalFromGroup(group: Match.Group[_]): Interval = {
-    val startIndex = group.startIndex()
-    val endIndex = group.endIndex() + 1
+  def intervalFromGroup(group: openregex.Pattern.Group[_]): Interval = {
+    val interval = group.interval
 
-    if (startIndex == -1 || endIndex == -1) {
+    if (interval.start == -1 || interval.end == -1) {
       Interval.empty
     } else {
-      Interval.open(startIndex, endIndex)
+      interval
     }
   }
 }
 
-abstract class BinaryPatternExtractor[B](val expression: RegularExpression[PatternExtractor.Token]) extends Extractor[Seq[PatternExtractor.Token], B] {
+abstract class BinaryPatternExtractor[B](val expression: openregex.Pattern[PatternExtractor.Token]) extends Extractor[Seq[PatternExtractor.Token], B] {
   def this(pattern: String) = this(PatternExtractor.compile(pattern))
 
   def apply(tokens: Seq[PatternExtractor.Token]): Iterable[B] = {
-    val matches = expression.findAll(tokens.asJava);
+    val matches = expression.findAll(tokens.toList);
 
     for (
-      m <- matches.asScala;
+      m <- matches;
       val extraction = buildExtraction(tokens, m);
       if !filterExtraction(extraction)
     ) yield extraction
@@ -90,5 +89,5 @@ abstract class BinaryPatternExtractor[B](val expression: RegularExpression[Patte
 
   protected def filterExtraction(extraction: B): Boolean = false
 
-  protected def buildExtraction(tokens: Seq[PatternExtractor.Token], m: Match[PatternExtractor.Token]): B
+  protected def buildExtraction(tokens: Seq[PatternExtractor.Token], m: openregex.Pattern.Match[PatternExtractor.Token]): B
 }

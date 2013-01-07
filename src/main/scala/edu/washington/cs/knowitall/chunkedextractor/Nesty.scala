@@ -5,8 +5,7 @@ import edu.washington.cs.knowitall.tool.stem.Lemmatized
 import scala.collection.JavaConverters._
 import edu.washington.cs.knowitall.tool.chunk.ChunkedToken
 import edu.washington.cs.knowitall.collection.immutable.Interval
-import edu.washington.cs.knowitall.regex.Match
-import edu.washington.cs.knowitall.regex.RegularExpression
+import edu.washington.cs.knowitall.openregex
 import edu.washington.cs.knowitall.tool.chunk.OpenNlpChunker
 import edu.washington.cs.knowitall.tool.stem.MorphaStemmer
 
@@ -45,17 +44,17 @@ class Nesty
     super.apply(transformed)
   }
 
-  override def buildExtraction(tokens: Seq[PatternExtractor.Token], m: Match[PatternExtractor.Token]) = {
+  override def buildExtraction(tokens: Seq[PatternExtractor.Token], m: openregex.Pattern.Match[PatternExtractor.Token]) = {
     implicit def patternTokenAsToken2(lemmatized: PatternExtractor.Token): edu.washington.cs.knowitall.tool.tokenize.Token = lemmatized.token
-    val relation = ExtractionPart.fromSentenceTokens[Nesty.Token](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("baseRelation")))
+    val relation = ExtractionPart.fromSentenceTokens[Nesty.Token](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("baseRelation").get))
 
     val extr = new Nesty.NestedExtraction(
-      ExtractionPart.fromSentenceTokens[Nesty.Token](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("arg1"))),
-      ExtractionPart.fromSentenceTokens[Nesty.Token](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("nestedRelation"))),
+      ExtractionPart.fromSentenceTokens[Nesty.Token](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("arg1").get)),
+      ExtractionPart.fromSentenceTokens[Nesty.Token](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("nestedRelation").get)),
       new BinaryExtraction[Nesty.Token](
-        ExtractionPart.fromSentenceTokens[Nesty.Token](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("baseArg1"))),
+        ExtractionPart.fromSentenceTokens[Nesty.Token](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("baseArg1").get)),
         relation,
-        ExtractionPart.fromSentenceTokens[Nesty.Token](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("baseArg2")))))
+        ExtractionPart.fromSentenceTokens[Nesty.Token](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("baseArg2").get))))
 
     new BinaryExtractionInstance(extr, tokens.map(_.token))
   }
