@@ -12,7 +12,7 @@ object NestySpecTest extends Specification {
     val chunker = new OpenNlpChunker
     val nesty = new Nesty
     val chunked = chunker.chunk(sentence)
-    val lemmatized = chunked.map(MorphaStemmer.instance.lemmatizeToken)
+    val lemmatized = chunked.map(MorphaStemmer.lemmatizeToken)
     nesty(lemmatized)
   }
 

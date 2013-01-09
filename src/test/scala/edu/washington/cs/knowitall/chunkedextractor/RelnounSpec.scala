@@ -12,7 +12,7 @@ object RelnounSpecTest extends Specification {
     val chunker = new OpenNlpChunker
     val relnoun = new Relnoun
     val chunked = chunker.chunk(sentence)
-    val lemmatized = chunked.map(MorphaStemmer.instance.lemmatizeToken)
+    val lemmatized = chunked.map(MorphaStemmer.lemmatizeToken)
     relnoun(lemmatized)
   }
 
@@ -30,42 +30,42 @@ object RelnounSpecTest extends Specification {
     }
   }
 
-  test("appositive", 
-      "Barack Obama, the president of the U.S.", 
+  test("appositive",
+      "Barack Obama, the president of the U.S.",
       ("Barack Obama", "[is] the president of", "the U.S."))
 
-  test("adjective descriptor", 
-      "United States president Barack Obama gave a speech today.", 
+  test("adjective descriptor",
+      "United States president Barack Obama gave a speech today.",
       ("Barack Obama", "[is] president [of]", "United States"))
 
   test("adjective descriptor",
       "U.S. president Barack Obama",
       ("Barack Obama", "[is] president [of]", "U.S."))
-      
+
   test("possessive",
        "United States' president Barack Obama was in a debate on Wednesday.",
        ("Barack Obama", "[is] president [of]", "United States"))
-       
+
   test("possessive appositive",
        "United States' president, Barack Obama, was in a debate on Wednesday.",
        ("Barack Obama", "[is] president [of]", "United States"))
-       
+
   test("possessive is",
        "America's president is Barack Obama",
        ("Barack Obama", "is president [of]", "America"))
-       
+
   test("is possessive",
        "Barack Obama is America's president.",
        ("Barack Obama", "is president [of]", "America"))
-       
+
   test("of is",
        "The president of the United States is Barack Obama.",
        ("Barack Obama", "is The president of", "the United States"))
-       
+
   test("possessive reverse",
        "Barack Obama, America's president, gave a debate on Wednesday.",
        ("Barack Obama", "[is] president [of]", "America"))
-       
+
   test("proper noun adjective",
        "Barack Obama, the US president, gave a debate on Wednesday.",
        ("Barack Obama", "[is] the president [of]", "US"))
