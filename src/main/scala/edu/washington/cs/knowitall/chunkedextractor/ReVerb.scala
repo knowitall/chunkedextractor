@@ -42,14 +42,14 @@ class ReVerb(val reverb: ReVerbExtractor, val conf: Option[ConfidenceFunction] =
   }
 
   def apply(tokens: Seq[ChunkedToken]) = {
-    reverbExtract(tokens) map convertExtraction(tokens) map (extr => BinaryExtractionInstance(extr, tokens))
+    reverbExtract(tokens) map convertExtraction(tokens) map (extr => new BinaryExtractionInstance(extr, tokens))
   }
 
   def extractWithConfidence(tokens: Seq[ChunkedToken]): Seq[(Double, BinaryExtractionInstance[ChunkedToken])] = {
     val extrs = reverbExtract(tokens)
     val confs = extrs map this.confidence
 
-    val converted = extrs map (extr => BinaryExtractionInstance(convertExtraction(tokens)(extr), tokens))
+    val converted = extrs map (extr => new BinaryExtractionInstance(convertExtraction(tokens)(extr), tokens))
     (confs.iterator zip converted.iterator).toList
   }
 }

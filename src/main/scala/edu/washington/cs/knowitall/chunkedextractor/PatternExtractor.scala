@@ -74,7 +74,8 @@ object PatternExtractor {
   }
 }
 
-abstract class BinaryPatternExtractor[B](val expression: openregex.Pattern[PatternExtractor.Token]) extends Extractor[Seq[PatternExtractor.Token], B] {
+abstract class BinaryPatternExtractor[B](val expression: openregex.Pattern[PatternExtractor.Token])
+extends Extractor[Seq[PatternExtractor.Token], B] {
   def this(pattern: String) = this(PatternExtractor.compile(pattern))
 
   def apply(tokens: Seq[PatternExtractor.Token]): Iterable[B] = {

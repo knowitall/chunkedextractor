@@ -273,7 +273,7 @@ object Relnoun {
         ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups(2)), this.inferredIs + " " + m.groups(2).tokens.map(_.token.string).mkString(" ")),
         ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups(3))))
 
-      BinaryExtractionInstance(extr, tokens)
+      new BinaryExtractionInstance(extr, tokens)
     }
   }
 
@@ -332,7 +332,7 @@ object Relnoun {
         relation,
         ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(arg2Group)))
 
-      BinaryExtractionInstance[Relnoun.Token](extr, tokens)
+      new BinaryExtractionInstance[Relnoun.Token](extr, tokens)
     }
   }
 
@@ -371,7 +371,7 @@ object Relnoun {
         relation,
         ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups(1))))
 
-      BinaryExtractionInstance(extr, tokens)
+      new BinaryExtractionInstance(extr, tokens)
     }
   }
 
@@ -409,7 +409,7 @@ object Relnoun {
         relation,
         ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups(1))))
 
-      BinaryExtractionInstance(extr, tokens)
+      new BinaryExtractionInstance(extr, tokens)
     }
   }
 
@@ -446,7 +446,7 @@ object Relnoun {
         relation,
         ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups(1))));
 
-      BinaryExtractionInstance(extr, tokens)
+      new BinaryExtractionInstance(extr, tokens)
     }
   }
 
@@ -483,7 +483,7 @@ object Relnoun {
         relation,
         ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups(3))))
 
-      BinaryExtractionInstance(extr, tokens)
+      new BinaryExtractionInstance(extr, tokens)
     }
   }
 
@@ -514,7 +514,7 @@ object Relnoun {
         relation,
         ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups(2))))
 
-      BinaryExtractionInstance(extr, tokens)
+      new BinaryExtractionInstance(extr, tokens)
     }
   }
 
@@ -548,7 +548,7 @@ object Relnoun {
         relation,
         ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups(2))))
 
-      BinaryExtractionInstance(extr, tokens)
+      new BinaryExtractionInstance(extr, tokens)
     }
   }
 
@@ -589,7 +589,7 @@ object Relnoun {
         relation,
         ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups(3))))
 
-      BinaryExtractionInstance(extr, tokens)
+      new BinaryExtractionInstance(extr, tokens)
     }
   }
 

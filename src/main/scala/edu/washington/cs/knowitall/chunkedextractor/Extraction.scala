@@ -26,4 +26,4 @@ case class BinaryExtraction[+T <% Token](arg1: ExtractionPart[T], rel: Extractio
   def tokens = arg1.tokens ++ rel.tokens ++ arg2.tokens
 }
 
-case class BinaryExtractionInstance[+T <% Token](extr: BinaryExtraction[T], sent: Seq[T])
+class BinaryExtractionInstance[+T <% Token](val extr: BinaryExtraction[T], val sent: Seq[T])

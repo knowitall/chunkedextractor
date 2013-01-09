@@ -10,16 +10,16 @@ import edu.washington.cs.knowitall.tool.chunk.OpenNlpChunker
 import edu.washington.cs.knowitall.tool.stem.MorphaStemmer
 
 class Nesty
-  extends BinaryPatternExtractor[BinaryExtractionInstance[Nesty.Token]](Nesty.pattern) {
+  extends BinaryPatternExtractor[Nesty.ExtractionInstance](Nesty.pattern) {
 
   lazy val reverb = new ReVerb
 
-  override def apply(tokens: Seq[PatternExtractor.Token]): Iterable[BinaryExtractionInstance[Nesty.Token]] = {
+  override def apply(tokens: Seq[PatternExtractor.Token]): Iterable[Nesty.ExtractionInstance] = {
     val reverbExtractions = reverb.extract(tokens.map(_.token))
-    apply(tokens, reverbExtractions.map(_.extr))
+    this.apply(tokens, reverbExtractions.map(_.extr))
   }
 
-  def apply(tokens: Seq[PatternExtractor.Token], reverbExtractions: Iterable[BinaryExtraction[ChunkedToken]]): Iterable[BinaryExtractionInstance[Nesty.Token]] = {
+  def apply(tokens: Seq[PatternExtractor.Token], reverbExtractions: Iterable[BinaryExtraction[ChunkedToken]]): Iterable[Nesty.ExtractionInstance] = {
     val transformed =
       tokens.iterator.zipWithIndex.map { case (t, i) =>
         val ext = reverbExtractions.flatMap {
@@ -56,13 +56,15 @@ class Nesty
         relation,
         ExtractionPart.fromSentenceTokens[Nesty.Token](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("baseArg2").get))))
 
-    new BinaryExtractionInstance(extr, tokens.map(_.token))
+    new Nesty.ExtractionInstance(extr, tokens.map(_.token))
   }
 }
 
 object Nesty {
-  type Token= ChunkedToken
-  type NestyExtractionInstance = BinaryExtractionInstance[Nesty.NestedExtraction]
+  type Token = ChunkedToken
+
+  class ExtractionInstance(override val extr: Nesty.NestedExtraction, sent: Seq[Nesty.Token])
+  extends BinaryExtractionInstance(extr, sent)
 
   class NestedExtraction(arg1: ExtractionPart[Token], rel: ExtractionPart[Token], nested: BinaryExtraction[Nesty.Token])
     extends BinaryExtraction(arg1, rel, new ExtractionPart[Token](nested.text, nested.tokens, nested.interval)) {
