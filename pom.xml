@@ -8,7 +8,7 @@
   </parent>
   <artifactId>chunkedextractor_2.9.2</artifactId>
   <groupId>edu.washington.cs.knowitall.chunkedextractor</groupId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <name>chunkedextractor</name>
   <description>ChunkedExtractor provides a common interface to three extractors requiring chunked sentences as input.</description>
   <properties>
@@ -108,4 +108,8 @@
       </plugin>
     </plugins>
   </build>
+
+  <scm>
+    <tag>chunkedextractor-1.0.0</tag>
+  </scm>
 </project>
