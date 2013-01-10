@@ -66,7 +66,7 @@ object Nesty {
   class ExtractionInstance(override val extr: Nesty.NestedExtraction, sent: Seq[Nesty.Token])
   extends BinaryExtractionInstance(extr, sent)
 
-  class NestedExtraction(arg1: ExtractionPart[Token], rel: ExtractionPart[Token], nested: BinaryExtraction[Nesty.Token])
+  class NestedExtraction(arg1: ExtractionPart[Token], rel: ExtractionPart[Token], val nested: BinaryExtraction[Nesty.Token])
     extends BinaryExtraction(arg1, rel, new ExtractionPart[Token](nested.text, nested.tokens, nested.interval)) {
   }
 
