@@ -623,7 +623,7 @@ object Relnoun {
           val tokens = chunked map stemmer.lemmatizeToken
 
           for (extraction <- relnoun(tokens)) {
-            println(extraction);
+            println(extraction.extr);
           }
 
           System.out.println();

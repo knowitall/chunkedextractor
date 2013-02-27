@@ -152,7 +152,7 @@ object Nesty {
           val tokens = chunked map stemmer.lemmatizeToken
 
           for (extraction <- nesty(tokens)) {
-            println(extraction)
+            println(extraction.extr)
           }
 
           System.out.println()
