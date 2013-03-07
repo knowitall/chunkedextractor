@@ -11,7 +11,7 @@ import edu.washington.cs.knowitall.tool.chunk.OpenNlpChunker
 import edu.washington.cs.knowitall.tool.stem.MorphaStemmer
 import Relnoun._
 
-class Relnoun(val encloseInferredWords: Boolean = true)
+class Relnoun(val encloseInferredWords: Boolean = true, val includeReverbRelnouns: Boolean = true)
 extends Extractor[Seq[PatternExtractor.Token], BinaryExtractionInstance[Relnoun.Token]] {
   val subextractors: Seq[BinaryPatternExtractor[BinaryExtractionInstance[Relnoun.Token]]] = Seq(
       new AppositiveExtractor(this.encloseInferredWords, Relnoun.nouns),
@@ -22,7 +22,8 @@ extends Extractor[Seq[PatternExtractor.Token], BinaryExtractionInstance[Relnoun.
       new IsPossessiveExtractor(this.encloseInferredWords, Relnoun.nouns),
       new OfIsExtractor(this.encloseInferredWords, Relnoun.nouns),
       new PossessiveReverseExtractor(this.encloseInferredWords, Relnoun.nouns),
-      new ProperNounAdjectiveExtractor(this.encloseInferredWords, Relnoun.nouns))
+      new ProperNounAdjectiveExtractor(this.encloseInferredWords, Relnoun.nouns)) ++ 
+      (if (includeReverbRelnouns) Seq(new VerbBasedExtractor(this.encloseInferredWords)) else Seq.empty)
 
   def apply(tokens: Seq[Lemmatized[ChunkedToken]]): Seq[BinaryExtractionInstance[Relnoun.Token]] = {
     for (
@@ -35,6 +36,7 @@ extends Extractor[Seq[PatternExtractor.Token], BinaryExtractionInstance[Relnoun.
 object Relnoun {
     type Token = ChunkedToken
 
+    val nounChunk = "(?:<chunk=\"B-NP\"> <chunk=\"I-NP\">*)"
     val properNounChunk = "(?:<chunk=\"B-NP\" & pos=\"NNPS?\"> <chunk=\"I-NP\">*) | (?:<chunk=\"B-NP\"> <chunk=\"I-NP\">* <chunk=\"I-NP\" & pos=\"NNPS?\"> <chunk=\"I-NP\">*)";
 
     private final val nouns = Array("abbot",
@@ -252,6 +254,39 @@ object Relnoun {
             "witness", "wizard", "wolf", "woman", "worker", "worm",
             "worshipper", "worthy", "wrestler", "writer", "youngster", "youth")
 
+  /**
+   * Extracts relations from phrases such as:
+   *  "AUC's leader is Carlos Castano"
+   *  (Carlos Castano, (is) leader (of), AUC)
+   * @author schmmd
+   */
+  class VerbBasedExtractor(private val encloseInferredWords: Boolean) 
+    extends BinaryPatternExtractor[BinaryExtractionInstance[Relnoun.Token]](VerbBasedExtractor.pattern) {
+
+    private val inferredOf = if (encloseInferredWords) "[of]" else "of"
+
+    override def buildExtraction(patternTokens: Seq[PatternExtractor.Token], m: openregex.Pattern.Match[PatternExtractor.Token]) = {
+      val tokens = patternTokens.map(_.token)
+      val relation = ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups(2)), m.groups(2).tokens.map(_.token.string).mkString(" "))
+      val extr = new BinaryExtraction(
+        ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups(1))),
+        relation,
+        ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups(3))));
+
+      new BinaryExtractionInstance(extr, tokens)
+    }
+  }
+
+  object VerbBasedExtractor {
+    val pattern =
+      // {nouns} (no preposition)
+      "(" + nounChunk + ")" +
+        // {be} {adverb} {adjective} {relnoun} {prep}
+        "(<lemma='be'> <pos='DT'>?" + nounChunk + " <pos='IN'>)" +
+        // {proper np chunk}
+        "(" + nounChunk + ")";
+  }
+  
   /**
    * *
    * Extracts relations from phrases such as:
