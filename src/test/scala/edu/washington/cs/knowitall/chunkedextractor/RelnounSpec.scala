@@ -17,7 +17,7 @@ object RelnounSpecTest extends Specification {
   }
 
   def test(name: String, sentence: String, extraction: (String, String, String)) = {
-    "name" should {
+    name should {
       val extrs = extract(sentence)
       "have a single extraction" in {
         extrs.size must_== 1

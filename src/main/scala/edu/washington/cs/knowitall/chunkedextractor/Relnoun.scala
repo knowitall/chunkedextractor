@@ -453,7 +453,7 @@ object Relnoun {
   object PossessiveIsExtractor {
     val pattern =
       // {nouns} (no preposition)
-      "(<pos='NNS?|NNPS?'>+)" +
+      "(<pos='DT'>? <pos='RB.*'>* <pos='JJ.*'>* <pos='NNS?|NNPS?'>+)" +
         // {possessive}
         "<pos='POS'>" +
         // {adverb} {adjective} {relnoun}
