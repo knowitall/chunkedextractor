@@ -1,16 +1,12 @@
-organization := "edu.washington.cs.knowitall.common-scala"
+organization := "edu.washington.cs.knowitall.chunkedextractor"
 
 name := "chunkedextractor"
+
+description := "Wrapper and implementation for extractors of chunked sentences."
 
 version := "1.0.2-SNAPSHOT"
 
 scalaVersion := "2.9.2"
-
-resolvers ++= Seq("oss snapshot" at "http://oss.sonatype.org/content/repositories/snapshots/")
-
-resolvers ++= Seq("oss snapshot 2" at "https://oss.sonatype.org/content/repositories/eduwashingtoncsknowitall-404/")
-
-resolvers ++= Seq("oss snapshot 3" at "https://oss.sonatype.org/content/repositories/eduwashingtoncsknowitall-457/")
 
 libraryDependencies ++= Seq(
     "edu.washington.cs.knowitall" %% "openregex-scala" % "1.0.4",
@@ -21,6 +17,10 @@ libraryDependencies ++= Seq(
     "junit" % "junit" % "4.11",
     "org.specs2" %% "specs2" % "1.12.3")
 
+licenses := Seq("Academic License" -> url("http://reverb.cs.washington.edu/LICENSE.txt"))
+
+homepage := Some(url("http://github.com/knowitall/chunkedextractor"))
+
 publishMavenStyle := true
 
 publishTo <<= version { (v: String) =>
@@ -30,3 +30,16 @@ publishTo <<= version { (v: String) =>
   else
     Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
+
+pomExtra := (
+  <scm>
+    <url>https://github.com/knowitall/chunkedextractor</url>
+    <connection>scm:git://github.com/knowitall/chunkedextractor.git</connection>
+    <developerConnection>scm:git:git@github.com:knowitall/chunkedextractor.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+  <developers>
+   <developer>
+      <name>Michael Schmitz</name>
+    </developer>
+  </developers>)
