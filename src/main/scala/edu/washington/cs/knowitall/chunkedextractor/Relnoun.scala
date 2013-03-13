@@ -1,14 +1,16 @@
-package edu.washington.cs.knowitall
+package edu.knowitall
 package chunkedextractor
 
-import edu.washington.cs.knowitall.tool.stem.Lemmatized
+import edu.knowitall.tool.chunk.ChunkedToken
+import edu.knowitall.collection.immutable.Interval
+import edu.knowitall.tool.chunk.OpenNlpChunker
+import edu.knowitall.tool.stem.MorphaStemmer
+import edu.knowitall.tool.stem.Lemmatized
+
 import scala.collection.JavaConverters._
-import edu.washington.cs.knowitall.tool.chunk.ChunkedToken
-import edu.washington.cs.knowitall.collection.immutable.Interval
+import edu.knowitall.openregex
 import edu.washington.cs.knowitall.regex.Match
 import edu.washington.cs.knowitall.regex.RegularExpression
-import edu.washington.cs.knowitall.tool.chunk.OpenNlpChunker
-import edu.washington.cs.knowitall.tool.stem.MorphaStemmer
 import Relnoun._
 
 class Relnoun(val encloseInferredWords: Boolean = true, val includeReverbRelnouns: Boolean = true)

@@ -1,5 +1,4 @@
-package edu.washington.cs.knowitall
-package chunkedextractor
+package edu.knowitall.chunkedextractor
 
 import java.util.regex.Pattern
 
@@ -8,19 +7,21 @@ import scala.collection.JavaConverters.seqAsJavaListConverter
 
 import com.google.common.base.{Function => GuavaFunction}
 
-import edu.washington.cs.knowitall.collection.immutable.Interval
+import edu.knowitall.collection.immutable.Interval
+import edu.knowitall.tool.chunk.ChunkedToken
+import edu.knowitall.tool.stem.Lemmatized
+
+import edu.knowitall.openregex
 import edu.washington.cs.knowitall.logic.{Expression => LExpression}
 import edu.washington.cs.knowitall.logic.LogicExpression
 import edu.washington.cs.knowitall.regex.Expression
 import edu.washington.cs.knowitall.regex.Match
 import edu.washington.cs.knowitall.regex.RegularExpression
-import edu.washington.cs.knowitall.tool.chunk.ChunkedToken
-import edu.washington.cs.knowitall.tool.stem.Lemmatized
 
 object PatternExtractor {
   type Token = Lemmatized[ChunkedToken]
   object Token {
-    implicit def patternTokenAsToken(lemmatized: PatternExtractor.Token): edu.washington.cs.knowitall.tool.tokenize.Token = lemmatized.token
+    implicit def patternTokenAsToken(lemmatized: PatternExtractor.Token): edu.knowitall.tool.tokenize.Token = lemmatized.token
   }
 
   implicit def guavaFromFunction[A, B](f: A => B) = new GuavaFunction[A, B] {

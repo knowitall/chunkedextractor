@@ -1,9 +1,9 @@
-package edu.washington.cs.knowitall
+package edu.knowitall
 package chunkedextractor
 
 import java.util.regex.Pattern
-import tool.stem.Lemmatized
-import tool.chunk.ChunkedToken
+import edu.knowitall.tool.stem.Lemmatized
+import edu.knowitall.tool.chunk.ChunkedToken
 
 object Expressions {
   type Token = Lemmatized[ChunkedToken]
@@ -46,7 +46,7 @@ object Expressions {
       this(string, Pattern.CASE_INSENSITIVE)
     }
 
-    override def apply(token: Token): Boolean = 
+    override def apply(token: Token): Boolean =
       pattern.matcher(token.token.string).matches()
   }
 

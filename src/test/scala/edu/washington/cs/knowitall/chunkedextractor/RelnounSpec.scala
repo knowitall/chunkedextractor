@@ -1,10 +1,10 @@
-package edu.washington.cs.knowitall.chunkedextractor
+package edu.knowitall.chunkedextractor
 
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
-import edu.washington.cs.knowitall.tool.chunk.OpenNlpChunker
-import edu.washington.cs.knowitall.tool.stem.MorphaStemmer
+import edu.knowitall.tool.chunk.OpenNlpChunker
+import edu.knowitall.tool.stem.MorphaStemmer
 
 @RunWith(classOf[JUnitRunner])
 object RelnounSpecTest extends Specification {

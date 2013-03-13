@@ -1,10 +1,10 @@
-package edu.washington.cs.knowitall
+package edu.knowitall
 package chunkedextractor
 
-import edu.washington.cs.knowitall.collection.immutable.Interval
-import tool.stem.Lemmatized
-import tool.chunk.ChunkedToken
-import edu.washington.cs.knowitall.tool.tokenize.Token
+import edu.knowitall.collection.immutable.Interval
+import edu.knowitall.tool.stem.Lemmatized
+import edu.knowitall.tool.chunk.ChunkedToken
+import edu.knowitall.tool.tokenize.Token
 
 case class ExtractionPart[+T <% Token](text: String, tokens: Seq[T], interval: Interval) {
   override def toString = text

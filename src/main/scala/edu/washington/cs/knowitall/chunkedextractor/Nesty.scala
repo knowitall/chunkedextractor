@@ -1,13 +1,14 @@
-package edu.washington.cs.knowitall
+package edu.knowitall
 package chunkedextractor
 
-import edu.washington.cs.knowitall.tool.stem.Lemmatized
+import edu.knowitall.tool.chunk.ChunkedToken
+import edu.knowitall.tool.chunk.OpenNlpChunker
+import edu.knowitall.collection.immutable.Interval
+import edu.knowitall.tool.stem.MorphaStemmer
+import edu.knowitall.tool.stem.Lemmatized
+import edu.knowitall.openregex
+
 import scala.collection.JavaConverters._
-import edu.washington.cs.knowitall.tool.chunk.ChunkedToken
-import edu.washington.cs.knowitall.collection.immutable.Interval
-import edu.washington.cs.knowitall.openregex
-import edu.washington.cs.knowitall.tool.chunk.OpenNlpChunker
-import edu.washington.cs.knowitall.tool.stem.MorphaStemmer
 
 class Nesty
   extends BinaryPatternExtractor[Nesty.ExtractionInstance](Nesty.pattern) {
@@ -45,7 +46,7 @@ class Nesty
   }
 
   override def buildExtraction(tokens: Seq[PatternExtractor.Token], m: openregex.Pattern.Match[PatternExtractor.Token]) = {
-    implicit def patternTokenAsToken2(lemmatized: PatternExtractor.Token): edu.washington.cs.knowitall.tool.tokenize.Token = lemmatized.token
+    implicit def patternTokenAsToken2(lemmatized: PatternExtractor.Token): edu.knowitall.tool.tokenize.Token = lemmatized.token
     val relation = ExtractionPart.fromSentenceTokens[Nesty.Token](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("baseRelation").get))
 
     val extr = new Nesty.NestedExtraction(

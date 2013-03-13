@@ -1,10 +1,11 @@
-package edu.washington.cs.knowitall.chunkedextractor
+package edu.knowitall.chunkedextractor
+
+import edu.knowitall.tool.chunk.ChunkedToken
+import edu.knowitall.collection.immutable.Interval
 
 import edu.washington.cs.knowitall.extractor.ReVerbExtractor
-import edu.washington.cs.knowitall.tool.chunk.ChunkedToken
-import edu.washington.cs.knowitall.nlp.ChunkedSentence
 import edu.washington.cs.knowitall.commonlib.Range
-import edu.washington.cs.knowitall.collection.immutable.Interval
+import edu.washington.cs.knowitall.nlp.ChunkedSentence
 import edu.washington.cs.knowitall.nlp.extraction.ChunkedExtraction
 import edu.washington.cs.knowitall.extractor.conf.ConfidenceFunction
 import edu.washington.cs.knowitall.util.DefaultObjects
