@@ -4,7 +4,7 @@ name := "chunkedextractor"
 
 description := "Wrapper and implementation for extractors of chunked sentences."
 
-version := "1.0.2"
+version := "1.0.3-SNAPSHOT"
 
 scalaVersion := "2.9.2"
 
