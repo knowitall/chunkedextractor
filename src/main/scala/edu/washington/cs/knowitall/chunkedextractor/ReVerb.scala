@@ -12,7 +12,7 @@ import edu.washington.cs.knowitall.util.DefaultObjects
 import edu.washington.cs.knowitall.extractor.conf.ReVerbOpenNlpConfFunction
 import edu.washington.cs.knowitall.nlp.extraction.ChunkedBinaryExtraction
 
-class ReVerb(val reverb: ReVerbExtractor, val conf: Option[ConfidenceFunction] = None) extends Extractor[Seq[ChunkedToken], BinaryExtractionInstance[ChunkedToken]] {
+class ReVerb(val reverb: ReVerbExtractor, val conf: Option[ConfidenceFunction] = None) extends Extractor[Seq[ChunkedToken], BinaryExtractionInstance[ChunkedToken]] with JavaChunkedExtractor {
   def this() = this(new ReVerbExtractor, Some(new ReVerbOpenNlpConfFunction))
 
   private def confidence(extr: ChunkedBinaryExtraction): Double =
@@ -42,8 +42,9 @@ class ReVerb(val reverb: ReVerbExtractor, val conf: Option[ConfidenceFunction] =
      new BinaryExtraction(convertPart(extr.getArgument1), convertPart(extr.getRelation), convertPart(extr.getArgument2))
   }
 
-  def apply(tokens: Seq[ChunkedToken]) = {
-    reverbExtract(tokens) map convertExtraction(tokens) map (extr => new BinaryExtractionInstance(extr, tokens))
+  def apply(tokens: Seq[ChunkedToken]): Seq[BinaryExtractionInstance[ChunkedToken]] = {
+    (reverbExtract(tokens) map convertExtraction(tokens) map (extr => new BinaryExtractionInstance(extr, tokens)))(
+      scala.collection.breakOut)
   }
 
   def extractWithConfidence(tokens: Seq[ChunkedToken]): Seq[(Double, BinaryExtractionInstance[ChunkedToken])] = {

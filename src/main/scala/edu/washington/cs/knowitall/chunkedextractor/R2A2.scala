@@ -14,11 +14,13 @@ import edu.washington.cs.knowitall.nlp.extraction.ChunkedBinaryExtraction
 import edu.washington.cs.knowitall.extractor
 import edu.washington.cs.knowitall.argumentidentifier.ConfidenceMetric
 
-class R2A2(val r2a2: extractor.R2A2, val conf: Option[ConfidenceMetric] = None) extends Extractor[Seq[ChunkedToken], BinaryExtractionInstance[ChunkedToken]] {
+class R2A2(val r2a2: extractor.R2A2, val conf: Option[ConfidenceMetric] = None) extends Extractor[Seq[ChunkedToken], BinaryExtractionInstance[ChunkedToken]] with JavaChunkedExtractor {
   def this() = this(new extractor.R2A2, Some(new ConfidenceMetric))
 
-  private def confidence(extr: ChunkedBinaryExtraction): Option[Double] =
-    conf map (_ getConf extr)
+  private def confidence(extr: ChunkedBinaryExtraction): Double =
+    (conf map (_ getConf extr)).getOrElse {
+      throw new IllegalArgumentException("No confidence function defined.")
+    }
 
   private def reverbExtract(tokens: Seq[ChunkedToken]) = {
     import collection.JavaConverters._
@@ -42,11 +44,23 @@ class R2A2(val r2a2: extractor.R2A2, val conf: Option[ConfidenceMetric] = None) 
      new BinaryExtraction(convertPart(extr.getArgument1), convertPart(extr.getRelation), convertPart(extr.getArgument2))
   }
 
-  def apply(tokens: Seq[ChunkedToken]) = {
-    reverbExtract(tokens) map convertExtraction(tokens) map (extr => new BinaryExtractionInstance(extr, tokens))
+  def apply(tokens: Seq[ChunkedToken]): Seq[BinaryExtractionInstance[ChunkedToken]] = {
+    (reverbExtract(tokens) map convertExtraction(tokens) map (extr => new BinaryExtractionInstance(extr, tokens)))(
+      scala.collection.breakOut)
   }
 
+  @deprecated("Use extractWithConfidence", "2.4.1")
   def extractWithConf(tokens: Seq[ChunkedToken]): Seq[(Option[Double], BinaryExtractionInstance[ChunkedToken])] = {
+    val extrs = reverbExtract(tokens)
+    val confs = extrs map { extr =>
+      conf.map(_.getConf(extr))
+    }
+
+    val converted = extrs map (extr => new BinaryExtractionInstance(convertExtraction(tokens)(extr), tokens))
+    (confs.iterator zip converted.iterator).toList
+  }
+
+  def extractWithConfidence(tokens: Seq[ChunkedToken]): Seq[(Double, BinaryExtractionInstance[ChunkedToken])] = {
     val extrs = reverbExtract(tokens)
     val confs = extrs map this.confidence
 
