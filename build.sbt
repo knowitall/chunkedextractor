@@ -6,14 +6,16 @@ description := "Wrapper and implementation for extractors of chunked sentences."
 
 version := "1.0.3-SNAPSHOT"
 
-scalaVersion := "2.9.2"
+crossScalaVersions := Seq("2.9.2", "2.10.0")
+
+scalaVersion <<= crossScalaVersions { (vs: Seq[String]) => vs.head }
 
 libraryDependencies ++= Seq(
     "edu.washington.cs.knowitall" %% "openregex-scala" % "1.0.4",
     "edu.washington.cs.knowitall" % "reverb-core" % "1.4.1",
-    "edu.washington.cs.knowitall.nlptools" %% "nlptools-core" % "2.4.0",
-    "edu.washington.cs.knowitall.nlptools" %% "nlptools-chunk-opennlp" % "2.4.0",
-    "edu.washington.cs.knowitall.nlptools" %% "nlptools-stem-morpha" % "2.4.0",
+    "edu.washington.cs.knowitall.nlptools" %% "nlptools-core" % "2.4.1-SNAPSHOT",
+    "edu.washington.cs.knowitall.nlptools" %% "nlptools-chunk-opennlp" % "2.4.1-SNAPSHOT",
+    "edu.washington.cs.knowitall.nlptools" %% "nlptools-stem-morpha" % "2.4.1-SNAPSHOT",
     "junit" % "junit" % "4.11",
     "org.specs2" %% "specs2" % "1.12.3")
 
