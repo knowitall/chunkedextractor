@@ -84,7 +84,7 @@ extends Extractor[Seq[PatternExtractor.Token], B] {
 
     for (
       m <- matches;
-      val extraction = buildExtraction(tokens, m);
+      extraction = buildExtraction(tokens, m);
       if !filterExtraction(extraction)
     ) yield extraction
   }
