@@ -18,6 +18,8 @@ libraryDependencies ++= Seq(
     "edu.washington.cs.knowitall.nlptools" %% "nlptools-stem-morpha" % "2.4.1-SNAPSHOT",
     "junit" % "junit" % "4.11",
     "org.specs2" %% "specs2" % "1.12.3")
+    "junit" % "junit" % "4.11" % "test",
+    "org.specs2" %% "specs2" % "1.12.3" % "test")
 
 licenses := Seq("Academic License" -> url("http://reverb.cs.washington.edu/LICENSE.txt"))
 
