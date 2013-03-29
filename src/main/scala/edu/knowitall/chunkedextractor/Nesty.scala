@@ -24,17 +24,17 @@ class Nesty
     val transformed =
       tokens.iterator.zipWithIndex.map { case (t, i) =>
         val ext = reverbExtractions.flatMap {
-          case extr if (extr.arg1.interval.start == i) =>
+          case extr if (extr.arg1.tokenInterval.start == i) =>
             Some("B-ARG1")
-          case extr if (extr.arg1.interval superset Interval.singleton(i)) =>
+          case extr if (extr.arg1.tokenInterval superset Interval.singleton(i)) =>
             Some("I-ARG1")
-          case extr if (extr.rel.interval.start == i) =>
+          case extr if (extr.rel.tokenInterval.start == i) =>
             Some("B-REL")
-          case extr if (extr.rel.interval superset Interval.singleton(i)) =>
+          case extr if (extr.rel.tokenInterval superset Interval.singleton(i)) =>
             Some("I-REL")
-          case extr if (extr.arg2.interval.start == i) =>
+          case extr if (extr.arg2.tokenInterval.start == i) =>
             Some("B-ARG2")
-          case extr if (extr.arg2.interval superset Interval.singleton(i)) =>
+          case extr if (extr.arg2.tokenInterval superset Interval.singleton(i)) =>
             Some("I-ARG2")
           case _ => None
         }.mkString(":")
@@ -68,7 +68,7 @@ object Nesty {
   extends BinaryExtractionInstance(extr, sent)
 
   class NestedExtraction(arg1: ExtractionPart[Token], rel: ExtractionPart[Token], val nested: BinaryExtraction[Nesty.Token])
-    extends BinaryExtraction(arg1, rel, new ExtractionPart[Token](nested.text, nested.tokens, nested.interval)) {
+    extends BinaryExtraction(arg1, rel, new ExtractionPart[Token](nested.text, nested.tokens, nested.tokenInterval)) {
   }
 
   val verbs = List("be", "say", "have", "believe",

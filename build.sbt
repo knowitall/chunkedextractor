@@ -21,6 +21,8 @@ libraryDependencies ++= Seq(
     "junit" % "junit" % "4.11" % "test",
     "org.specs2" %% "specs2" % "1.12.3" % "test")
 
+scalacOptions ++= Seq("-unchecked", "-deprecation")
+
 licenses := Seq("Academic License" -> url("http://reverb.cs.washington.edu/LICENSE.txt"))
 
 homepage := Some(url("http://github.com/knowitall/chunkedextractor"))
