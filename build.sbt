@@ -4,7 +4,7 @@ name := "chunkedextractor"
 
 description := "Wrapper and implementation for extractors of chunked sentences."
 
-version := "1.0.3"
+version := "1.0.4-SNAPSHOT"
 
 crossScalaVersions := Seq("2.10.1", "2.9.2")
 
