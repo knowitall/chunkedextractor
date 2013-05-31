@@ -258,8 +258,8 @@ object Relnoun {
 
   /**
    * Extracts relations from phrases such as:
-   *  "AUC's leader is Carlos Castano"
-   *  (Carlos Castano, (is) leader (of), AUC)
+   *  "Barack Obama is the president of the United States."
+   *  (Barack Obama, is the president of, the United States)
    * @author schmmd
    */
   class VerbBasedExtractor(private val encloseInferredWords: Boolean) 
