@@ -37,7 +37,7 @@ object Expressions {
    *
    * @author schmmd
    */
-  class StringExpression(val pattern: Pattern) extends Function[Token, Boolean] {
+  class StringExpression[T <: ChunkedToken](val pattern: Pattern) extends Function[Lemmatized[T], Boolean] {
     def this(string: String, flags: Int) {
       this(Pattern.compile(string, flags))
     }
@@ -55,7 +55,7 @@ object Expressions {
    * token.
    * @author schmmd
    */
-  class LemmaExpression(val pattern: Pattern) extends Function[Token, Boolean] {
+  class LemmaExpression[T <: ChunkedToken](val pattern: Pattern) extends Function[Lemmatized[T], Boolean] {
     def this(string: String, flags: Int) {
       this(Pattern.compile(string, flags))
     }
@@ -73,7 +73,7 @@ object Expressions {
    * token.
    * @author schmmd
    */
-  class PostagExpression(val pattern: Pattern) extends Function[Token, Boolean] {
+  class PostagExpression[T <: ChunkedToken](val pattern: Pattern) extends Function[Lemmatized[T], Boolean] {
     def this(string: String, flags: Int) {
       this(Pattern.compile(string, flags))
     }
@@ -91,7 +91,7 @@ object Expressions {
    * token.
    * @author schmmd
    */
-  class ChunkExpression(val pattern: Pattern) extends Function[Token, Boolean] {
+  class ChunkExpression[T <: ChunkedToken](val pattern: Pattern) extends Function[Lemmatized[T], Boolean] {
     def this(string: String, flags: Int) {
       this(Pattern.compile(string, flags))
     }

@@ -16,10 +16,10 @@ case class ExtractionPart[+T <% Token](text: String, tokens: Seq[T], tokenInterv
 }
 
 object ExtractionPart {
-  def fromSentenceTokens[T <% Token](sentenceTokens: Seq[T], tokenInterval: Interval, text: String) =
+  def fromSentenceTokens[T <% Token](sentenceTokens: Seq[T], tokenInterval: Interval, text: String): ExtractionPart[T] =
     new ExtractionPart[T](text, sentenceTokens.view(tokenInterval.start, tokenInterval.end), tokenInterval)
 
-  def fromSentenceTokens[T <% Token](sentenceTokens: Seq[T], tokenInterval: Interval) =
+  def fromSentenceTokens[T <% Token](sentenceTokens: Seq[T], tokenInterval: Interval): ExtractionPart[T] =
     new ExtractionPart(sentenceTokens.view(tokenInterval.start, tokenInterval.end).iterator.map(_.string).mkString(" "), sentenceTokens.view(tokenInterval.start, tokenInterval.end), tokenInterval)
 }
 

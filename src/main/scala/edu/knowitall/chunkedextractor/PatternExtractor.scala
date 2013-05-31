@@ -1,16 +1,12 @@
 package edu.knowitall.chunkedextractor
 
 import java.util.regex.Pattern
-
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.collection.JavaConverters.seqAsJavaListConverter
-
 import com.google.common.base.{Function => GuavaFunction}
-
 import edu.knowitall.collection.immutable.Interval
 import edu.knowitall.tool.chunk.ChunkedToken
 import edu.knowitall.tool.stem.Lemmatized
-
 import edu.knowitall.openregex
 import edu.washington.cs.knowitall.logic.{Expression => LExpression}
 import edu.washington.cs.knowitall.logic.LogicExpression
@@ -32,12 +28,12 @@ object PatternExtractor {
     override def apply(token: T) = f(token)
   }
 
-  def compile(pattern: String) =
+  def compile[T <: ChunkedToken](pattern: String) =
     openregex.Pattern.compile(pattern, (expression: String) => {
       val valuePattern = Pattern.compile("([\"'])(.*)\\1")
 
-      val baseExpr = new Expression.BaseExpression[Token](expression) {
-        val deserializeToken: String => (Token => Boolean) = (argument: String) => {
+      val baseExpr = new Expression.BaseExpression[Lemmatized[T]](expression) {
+        val deserializeToken: String => (Lemmatized[T] => Boolean) = (argument: String) => {
           val Array(base, value) = argument.split("=")
 
           val matcher = valuePattern.matcher(value)
@@ -48,20 +44,20 @@ object PatternExtractor {
           val string = matcher.group(2)
 
           base match {
-            case "string" => new Expressions.StringExpression(string)
-            case "lemma" => new Expressions.LemmaExpression(string)
-            case "pos" => new Expressions.PostagExpression(string)
-            case "chunk" => new Expressions.ChunkExpression(string)
+            case "string" => new Expressions.StringExpression[T](string)
+            case "lemma" => new Expressions.LemmaExpression[T](string)
+            case "pos" => new Expressions.PostagExpression[T](string)
+            case "chunk" => new Expressions.ChunkExpression[T](string)
           }
         }
 
-        val logic: LogicExpression[Token] =
-          LogicExpression.compile(expression, deserializeToken andThen logicArgFromFunction[Token])
+        val logic: LogicExpression[Lemmatized[T]] =
+          LogicExpression.compile(expression, deserializeToken andThen logicArgFromFunction[Lemmatized[T]])
 
-        override def apply(token: Token): Boolean = logic.apply(token)
+        override def apply(token: Lemmatized[T]): Boolean = logic.apply(token)
       }
 
-      baseExpr: Expression.BaseExpression[Token]
+      baseExpr: Expression.BaseExpression[Lemmatized[T]]
     })
 
   def intervalFromGroup(group: openregex.Pattern.Group[_]): Interval = {
@@ -75,11 +71,11 @@ object PatternExtractor {
   }
 }
 
-abstract class BinaryPatternExtractor[B](val expression: openregex.Pattern[PatternExtractor.Token])
-extends Extractor[Seq[PatternExtractor.Token], B] {
-  def this(pattern: String) = this(PatternExtractor.compile(pattern))
+abstract class BinaryPatternExtractor[T <: ChunkedToken, B](val expression: openregex.Pattern[Lemmatized[T]])
+extends Extractor[Seq[Lemmatized[T]], B] {
+  def this(pattern: String) = this(PatternExtractor.compile[T](pattern))
 
-  def apply(tokens: Seq[PatternExtractor.Token]): Iterable[B] = {
+  def apply(tokens: Seq[Lemmatized[T]]): Iterable[B] = {
     val matches = expression.findAll(tokens.toList);
 
     for (
@@ -91,5 +87,5 @@ extends Extractor[Seq[PatternExtractor.Token], B] {
 
   protected def filterExtraction(extraction: B): Boolean = false
 
-  protected def buildExtraction(tokens: Seq[PatternExtractor.Token], m: openregex.Pattern.Match[PatternExtractor.Token]): B
+  protected def buildExtraction(tokens: Seq[Lemmatized[T]], m: openregex.Pattern.Match[Lemmatized[T]]): B
 }

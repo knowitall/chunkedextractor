@@ -10,17 +10,17 @@ import edu.knowitall.openregex
 
 import scala.collection.JavaConverters._
 
-class Nesty
-  extends BinaryPatternExtractor[Nesty.ExtractionInstance](Nesty.pattern) {
+class Nesty[T <: ChunkedToken]
+  extends BinaryPatternExtractor[T, Nesty.ExtractionInstance[T]](Nesty.pattern) {
 
   lazy val reverb = new ReVerb
 
-  override def apply(tokens: Seq[PatternExtractor.Token]): Iterable[Nesty.ExtractionInstance] = {
+  override def apply(tokens: Seq[PatternExtractor.Token]): Iterable[Nesty.ExtractionInstance[T]] = {
     val reverbExtractions = reverb.extract(tokens.map(_.token))
     this.apply(tokens, reverbExtractions.map(_.extr))
   }
 
-  def apply(tokens: Seq[PatternExtractor.Token], reverbExtractions: Iterable[BinaryExtraction[ChunkedToken]]): Iterable[Nesty.ExtractionInstance] = {
+  def apply(tokens: Seq[PatternExtractor.Token], reverbExtractions: Iterable[BinaryExtraction[T]]): Iterable[Nesty.ExtractionInstance] = {
     val transformed =
       tokens.iterator.zipWithIndex.map { case (t, i) =>
         val ext = reverbExtractions.flatMap {
@@ -45,30 +45,28 @@ class Nesty
     super.apply(transformed)
   }
 
-  override def buildExtraction(tokens: Seq[PatternExtractor.Token], m: openregex.Pattern.Match[PatternExtractor.Token]) = {
-    implicit def patternTokenAsToken2(lemmatized: PatternExtractor.Token): edu.knowitall.tool.tokenize.Token = lemmatized.token
-    val relation = ExtractionPart.fromSentenceTokens[Nesty.Token](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("baseRelation").get))
+  override def buildExtraction(tokens: Seq[Lemmatized[T]], m: openregex.Pattern.Match[Lemmatized[T]]) = {
+    implicit def patternTokenAsToken2(lemmatized: Lemmatized[T]): edu.knowitall.tool.tokenize.Token = lemmatized.token
+    val relation = ExtractionPart.fromSentenceTokens[T](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("baseRelation").get))
 
     val extr = new Nesty.NestedExtraction(
-      ExtractionPart.fromSentenceTokens[Nesty.Token](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("arg1").get)),
-      ExtractionPart.fromSentenceTokens[Nesty.Token](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("nestedRelation").get)),
-      new BinaryExtraction[Nesty.Token](
-        ExtractionPart.fromSentenceTokens[Nesty.Token](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("baseArg1").get)),
+      ExtractionPart.fromSentenceTokens[T](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("arg1").get)),
+      ExtractionPart.fromSentenceTokens[T](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("nestedRelation").get)),
+      new BinaryExtraction[T](
+        ExtractionPart.fromSentenceTokens[T](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("baseArg1").get)),
         relation,
-        ExtractionPart.fromSentenceTokens[Nesty.Token](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("baseArg2").get))))
+        ExtractionPart.fromSentenceTokens[T](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("baseArg2").get))))
 
     new Nesty.ExtractionInstance(extr, tokens.map(_.token))
   }
 }
 
 object Nesty {
-  type Token = ChunkedToken
-
-  class ExtractionInstance(override val extr: Nesty.NestedExtraction, sent: Seq[Nesty.Token])
+  class ExtractionInstance[T <: ChunkedToken](override val extr: Nesty.NestedExtraction[T], sent: Seq[T])
   extends BinaryExtractionInstance(extr, sent)
 
-  class NestedExtraction(arg1: ExtractionPart[Token], rel: ExtractionPart[Token], val nested: BinaryExtraction[Nesty.Token])
-    extends BinaryExtraction(arg1, rel, new ExtractionPart[Token](nested.text, nested.tokens, nested.tokenInterval)) {
+  class NestedExtraction[T <: ChunkedToken](arg1: ExtractionPart[T], rel: ExtractionPart[T], val nested: BinaryExtraction[T])
+    extends BinaryExtraction[T](arg1, rel, new ExtractionPart[T](nested.text, nested.tokens, nested.tokenInterval)) {
   }
 
   val verbs = List("be", "say", "have", "believe",
