@@ -24,7 +24,7 @@ extends Extractor[Seq[PatternExtractor.Token], BinaryExtractionInstance[Relnoun.
       new IsPossessiveExtractor(this.encloseInferredWords, Relnoun.nouns),
       new OfIsExtractor(this.encloseInferredWords, Relnoun.nouns),
       new PossessiveReverseExtractor(this.encloseInferredWords, Relnoun.nouns),
-      new ProperNounAdjectiveExtractor(this.encloseInferredWords, Relnoun.nouns)) ++ 
+      new ProperNounAdjectiveExtractor(this.encloseInferredWords, Relnoun.nouns)) ++
       (if (includeReverbRelnouns) Seq(new VerbBasedExtractor(this.encloseInferredWords)) else Seq.empty)
 
   def apply(tokens: Seq[Lemmatized[ChunkedToken]]): Seq[BinaryExtractionInstance[Relnoun.Token]] = {
@@ -262,7 +262,7 @@ object Relnoun {
    *  (Barack Obama, is the president of, the United States)
    * @author schmmd
    */
-  class VerbBasedExtractor(private val encloseInferredWords: Boolean) 
+  class VerbBasedExtractor(private val encloseInferredWords: Boolean)
     extends BinaryPatternExtractor[BinaryExtractionInstance[Relnoun.Token]](VerbBasedExtractor.pattern) {
 
     private val inferredOf = if (encloseInferredWords) "[of]" else "of"
@@ -288,7 +288,7 @@ object Relnoun {
         // {proper np chunk}
         "(" + nounChunk + ")";
   }
-  
+
   /**
    * *
    * Extracts relations from phrases such as:
@@ -642,6 +642,7 @@ object Relnoun {
   def main(args: Array[String]) {
     System.out.println("Creating the relational noun extractor... ")
     val relnoun = new Relnoun()
+    val conf = confidence.RelnounConfidenceFunction.loadDefaultClassifier()
 
     if (args.length > 0 && (args(0) equals "--pattern")) {
       for (extractor <- relnoun.subextractors) {
@@ -659,8 +660,8 @@ object Relnoun {
           val chunked = chunker.chunk(line);
           val tokens = chunked map stemmer.lemmatizeToken
 
-          for (extraction <- relnoun(tokens)) {
-            println(extraction.extr);
+          for (inst <- relnoun(tokens)) {
+            println(("%1.2f" format conf(inst)) + ": " + inst.extr);
           }
 
           System.out.println();

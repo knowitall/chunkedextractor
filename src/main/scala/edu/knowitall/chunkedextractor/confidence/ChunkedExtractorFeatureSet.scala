@@ -60,9 +60,17 @@ object ChunkedExtractorFeatures {
     }
   }
 
-  object npBeforeArg1 extends ChunkedExtractorFeature("np before arg2") {
+  object npBeforeExtr extends ChunkedExtractorFeature("np before extr") {
     override def apply(inst: BinaryExtractionInstance[ChunkedToken]): Double = {
       inst.sent.take(inst.extr.tokenInterval.start).exists(_.chunk == "B-NP")
+    }
+  }
+
+  object npAfterExtr extends ChunkedExtractorFeature("np after extr") {
+    override def apply(inst: BinaryExtractionInstance[ChunkedToken]): Double = {
+      val next = inst.sent.drop(inst.extr.rel.tokenInterval.end).headOption
+      val res = next.map(next => next.chunk == "B-NP" || next.chunk == "I-NP").getOrElse(false)
+      res
     }
   }
 
@@ -90,14 +98,6 @@ object ChunkedExtractorFeatures {
   object prepAfterExtr extends ChunkedExtractorFeature("prep after extr") {
     override def apply(inst: BinaryExtractionInstance[ChunkedToken]): Double = {
       val res = inst.sent.drop(inst.extr.rel.tokenInterval.end).headOption.map(_.isVerb).getOrElse(false)
-      res
-    }
-  }
-
-  object npAfterExtr extends ChunkedExtractorFeature("np after extr") {
-    override def apply(inst: BinaryExtractionInstance[ChunkedToken]): Double = {
-      val next = inst.sent.drop(inst.extr.rel.tokenInterval.end).headOption
-      val res = next.map(next => next.chunk == "B-NP" || next.chunk == "I-NP").getOrElse(false)
       res
     }
   }
@@ -133,12 +133,12 @@ object ChunkedExtractorFeatures {
           arg1Proper,
           arg2Proper,
           extrCoversSentence,
-          npBeforeArg1,
+          npBeforeExtr,
+          npAfterExtr,
           conjBeforeRel,
           prepBeforeExtr,
           verbAfterExtr,
           prepAfterExtr,
-          npAfterExtr,
           arg1ContainsPronoun,
           arg2ContainsPronoun,
           arg1ContainsPosPronoun,
