@@ -1,17 +1,17 @@
-sent starts w/ extr	-23.6892
-sent ends w/ extr	8.5339
-arg1 is proper	2.1897
-arg2 is proper	2.1897
-arg1 contains pronoun	-10.0
-arg2 contains pronoun	-10.0
-arg1 contains PRP$	-1.0
-arg2 contains PRP$	-1.0
+Intercept	0.0
+arg1 contains PRP$	0.0
+arg1 contains pronoun	0.0
+arg1 is proper	0.0
+arg2 contains PRP$	0.0
+arg2 contains pronoun	0.0
+arg2 is proper	-0.161086971288594
+conj before rel	0.0
 extr covers sent	0.0
-np before extr	-25.4093
-np after extr	-2.752
-conj before rel	-1.0
-prep before extr	43.2814
-verb after extr	-25.5007
-prep after extr	-3.4831
-which|who|that before rel	0
-Intercept	26.2064
+np after extr	0.0
+np before extr	-0.0879386961760594
+prep after extr	0.0
+prep before extr	0.0
+sent ends w/ extr	0.0
+sent starts w/ extr	0.7536926857211631
+verb after extr	0.0
+which|who|that before rel	-0.2530546452452752

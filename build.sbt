@@ -17,6 +17,7 @@ libraryDependencies ++= Seq(
       case x => x
     },
     "edu.washington.cs.knowitall" % "reverb-core" % "1.4.3",
+    "edu.washington.cs.knowitall.nlptools" %% "nlptools-conf-breeze" % "2.4.2",
     "edu.washington.cs.knowitall.nlptools" %% "nlptools-core" % "2.4.2",
     "edu.washington.cs.knowitall.nlptools" %% "nlptools-chunk-opennlp" % "2.4.2",
     "edu.washington.cs.knowitall.nlptools" %% "nlptools-stem-morpha" % "2.4.2",
