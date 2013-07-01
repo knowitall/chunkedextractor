@@ -1,0 +1,100 @@
+0	which	are an essential presentation in	a virtual studio
+1	Wendy	is the daughter of	Eldon
+1	Amphora	is a publication of	the American Philological Association
+0	who	was a guest on	the show
+0	who	was a guest on	the show
+1	Testosterone	is an important hormone for	muscles
+1	Jafrum	is a cool site for	motorcycle parts
+1	Rock Island	is a city in	Rock Island County
+1	Love	is the opposite of	greed
+1	Alberta	was a federal electoral district in	the Northwest Territories
+0	ASP.NET	is the latest version of	Microsoft
+0	's Active Server Pages technology .|ASP.NET	is the latest version of	Microsoft
+0	West Lothian	is a county of	Scotland .|Before 1975
+1	West Lothian	was a county of	Scotland
+1	April	is a long-time supporter of	DHCC
+0	December , 1989	[is] Carlos Salinas became president of	Mexico
+1	The DFSG	is our definition of	free software
+0	Scarce	was every kind of	food
+1	Dan	is a graduate of	Emory University
+0	Florida State .|Dan	is a graduate of	Emory University
+1	Dried figs	are an excellent source of	iron
+1	2006	was a great year for	electronic music
+1	Slashfood	is a member of	the Weblogs
+0	Contamination	is a married guy from	Saitama
+1	CODEINE	is matter of	miscommunication
+1	Adam Sandler	is a waste of	film
+1	Chester	is part of	the PoughkeepsieNewburghMiddletown
+0	the March 6 , 2006	[is] issue of	Oil
+1	Aleppo	is the oldest inhabited city in	history
+1	A social institution	is a group of	people
+1	CR	is the abbreviation of	Card Reader
+1	Carl Hoff	[is] fan [of]	jazz
+1	Dr. Weil	is a proponent of	Integrative Medicine
+1	James Wang	is a photographer in	San Diego
+1	Saint Peters	is a city in	St . Charles County
+1	Woolite	is a trademark of	Reckitt Benckiser
+1	RADIO	is the only source of	info
+1	Piracy	is an integral part of	exploration
+1	Backdraft	is an amazing piece of	film work
+1	Tya	is the art director for	Coalesce
+1	Jane	is the mother of	Fielding
+0	solutions	are an university of	principal buttons
+1	Mr Pullicino	is Minister of	Resources
+1	There	were 14 deaths during	the journey
+0	which	were children under	5 years
+1	East Asia	is a region of	economic dynamism
+1	Downtown Asheville	is the cultural center of	Western North Carolina
+1	A lab test	is the most reliable means of	detection
+1	Trondheim	is a city of	schools
+1	Riven	is a trademark of	Cyan
+1	Alkalines	are an example of	primary cells
+1	Pat watt	is the uncle of	www.workbizfromhom.com
+1	The TIN	is one such piece of	information
+1	Key 12	is the law of	reversal
+1	Jack	was a man of	taste
+1	Bossier	was game in	defeat
+1	Clinton Township	is a township in	Butler County
+1	Impatience	is another attribute of	selfishness
+1	Abstract algebra	is the study of	operations
+1	brevity	is the soul of	Twitter
+0	Pass-Guaranteed	is your source for	the Cisco 350-024 exam
+1	Steele	is president of	the Oglala Sioux Tribe
+1	Destiny	is just an excuse for	bad management
+0	affairs	is simply the consequence of	some natural order
+1	the Social Media Club	[is] an original member of	the Media 2.0 Workgroup
+1	Solis	is co-founder of	the Social Media Club
+0	the Social Media Collective .|Solis	is co-founder of	the Social Media Club
+0	the Social Media Collective .|Solis	is co-founder of	the Social Media Club
+0	.org .|Solis	is co-founder of	the Social Media Club
+0	Archie Donahue	[is] ace [of]	segments highlight Marine
+0	LASP	is one of	a few
+1	The Hurricanes	is a story of	grit
+1	Maroua	is the capital city of	the Far North Province
+1	A tribe	is any group of	people
+0	o...|A tribe	is any group of	people
+1	Mikael	is a married guy from	California
+1	A child	is a gift from	the Creator
+1	Cholesterol	is a major component of	myelin
+1	Guy	is the co-creator of	Nancy
+1	Bacteria	are a diverse group of	single-celled organisms
+1	Play	is an intergral part of	childhood
+1	82	is a freelance writer in	San Francisco
+1	Felix	was the first Bishop of	the East Angles
+1	Dr. Herman	is a fellow of	the American College
+0	uploads	are an shred of	short buttons
+0	three	were veterans of	World War II
+1	Harold Pinter	is a master of	language
+1	David	was a king of	wars
+1	Dr. David Oliver	[is] a connection of	the Spencer family
+1	Vampire Weekend	is an album by	Vampire Weekend
+1	Night Watch	was a huge hit in	Russia
+1	Hair Design	is a hair salon in	Wilmington
+0	FIG. 2B	is a side elevational view of	FIG.
+0	Kristina	is a Champion for	1 Cause
+1	Beings	are owners of	kammas
+0	their homing-place .|Beings	are owners of	kamma
+1	Unknown tongues	are a sign of	God
+1	summer vacation season	is the prime time for	home burglaries
+1	they	are a good source of	fiber
+1	Attachments	are a gateway for	spammers
