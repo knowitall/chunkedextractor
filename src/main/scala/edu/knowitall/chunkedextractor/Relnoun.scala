@@ -7,6 +7,8 @@ import edu.knowitall.tool.chunk.OpenNlpChunker
 import edu.knowitall.tool.stem.MorphaStemmer
 import edu.knowitall.tool.stem.Lemmatized
 
+import edu.knowitall.common.Timing
+
 import scala.collection.JavaConverters._
 import edu.knowitall.openregex
 import edu.washington.cs.knowitall.regex.Match
@@ -650,26 +652,30 @@ object Relnoun {
       }
     } else {
 
-      System.out.println("Creating the sentence chunker... ")
+      System.err.println("Creating the sentence chunker... ")
       val chunker = new OpenNlpChunker()
       val stemmer = new MorphaStemmer()
-      System.out.println("Please enter a sentence:")
+      System.err.println("Please enter a sentence:")
 
-      try {
-        for (line <- scala.io.Source.stdin.getLines) {
-          val chunked = chunker.chunk(line);
-          val tokens = chunked map stemmer.lemmatizeToken
+      Timing.timeThen {
+        try {
+          for (line <- scala.io.Source.stdin.getLines) {
+            val chunked = chunker.chunk(line);
+            val tokens = chunked map stemmer.lemmatizeToken
 
-          for (inst <- relnoun(tokens)) {
-            println(("%1.2f" format conf(inst)) + ": " + inst.extr);
+            for (inst <- relnoun(tokens)) {
+              println(("%1.2f" format conf(inst)) + ": " + inst.extr);
+            }
+
+            System.out.println();
           }
-
-          System.out.println();
+        } catch {
+          case e: Exception =>
+            e.printStackTrace()
+            System.exit(2)
         }
-      } catch {
-        case e: Exception =>
-          e.printStackTrace()
-          System.exit(2)
+      } { ns =>
+        System.err.println("extraction completed in: " + Timing.Seconds.format(ns))
       }
     }
   }
