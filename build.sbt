@@ -1,10 +1,12 @@
+net.virtualvoid.sbt.graph.Plugin.graphSettings
+
 organization := "edu.washington.cs.knowitall.chunkedextractor"
 
 name := "chunkedextractor"
 
 description := "Wrapper and implementation for extractors of chunked sentences."
 
-version := "1.0.6"
+version := "1.0.7-SNAPSHOT"
 
 crossScalaVersions := Seq("2.10.2", "2.9.3")
 
@@ -15,7 +17,7 @@ libraryDependencies ++= Seq(
       case "2.9.3" => "2.9.2"
       case "2.10.2" => "2.10"
       case x => x
-    },
+    } exclude("edu.washington.cs.knowitall.common-scala", "common-scala_2.9.2"),
     "edu.washington.cs.knowitall" % "reverb-core" % "1.4.3",
     "edu.washington.cs.knowitall.nlptools" %% "nlptools-conf-breeze" % "2.4.3",
     "edu.washington.cs.knowitall.nlptools" %% "nlptools-core" % "2.4.3",
