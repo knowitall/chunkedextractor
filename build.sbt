@@ -1,5 +1,3 @@
-net.virtualvoid.sbt.graph.Plugin.graphSettings
-
 organization := "edu.washington.cs.knowitall.chunkedextractor"
 
 name := "chunkedextractor"
