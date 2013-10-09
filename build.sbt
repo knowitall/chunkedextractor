@@ -11,11 +11,7 @@ crossScalaVersions := Seq("2.10.2", "2.9.3")
 scalaVersion <<= crossScalaVersions { (vs: Seq[String]) => vs.head }
 
 libraryDependencies ++= Seq(
-    "edu.washington.cs.knowitall" %% "openregex-scala" % "1.1.1" cross CrossVersion.binaryMapped {
-      case "2.9.3" => "2.9.2"
-      case "2.10.2" => "2.10"
-      case x => x
-    } exclude("edu.washington.cs.knowitall.common-scala", "common-scala_2.9.2"),
+    "edu.washington.cs.knowitall" %% "openregex-scala" % "1.1.1",
     "edu.washington.cs.knowitall" % "reverb-core" % "1.4.3",
     "edu.washington.cs.knowitall.nlptools" %% "nlptools-conf-breeze" % "2.4.3",
     "edu.washington.cs.knowitall.nlptools" %% "nlptools-core" % "2.4.3",
