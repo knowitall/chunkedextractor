@@ -13,10 +13,10 @@ scalaVersion <<= crossScalaVersions { (vs: Seq[String]) => vs.head }
 libraryDependencies ++= Seq(
     "edu.washington.cs.knowitall" %% "openregex-scala" % "1.1.1",
     "edu.washington.cs.knowitall" % "reverb-core" % "1.4.3",
-    "edu.washington.cs.knowitall.nlptools" %% "nlptools-conf-breeze" % "2.4.3",
-    "edu.washington.cs.knowitall.nlptools" %% "nlptools-core" % "2.4.3",
-    "edu.washington.cs.knowitall.nlptools" %% "nlptools-chunk-opennlp" % "2.4.3",
-    "edu.washington.cs.knowitall.nlptools" %% "nlptools-stem-morpha" % "2.4.3",
+    "edu.washington.cs.knowitall.nlptools" %% "nlptools-conf-breeze" % "2.4.4",
+    "edu.washington.cs.knowitall.nlptools" %% "nlptools-core" % "2.4.4",
+    "edu.washington.cs.knowitall.nlptools" %% "nlptools-chunk-opennlp" % "2.4.4",
+    "edu.washington.cs.knowitall.nlptools" %% "nlptools-stem-morpha" % "2.4.4",
     "junit" % "junit" % "4.11" % "test",
     "org.specs2" % "specs2" % "1.12.3" % "test" cross CrossVersion.binaryMapped {
       case "2.9.3" => "2.9.2"

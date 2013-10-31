@@ -39,7 +39,7 @@ class Nesty
           case _ => None
         }.mkString(":")
 
-        t.copy(token= new ChunkedToken(t.token.chunk + ":" + ext, t.token.postag, t.token.string, t.token.offset))
+        t.copy(token= ChunkedToken(t.token.chunk + ":" + ext, t.token.postag, t.token.string, t.token.offset))
     }.toSeq
 
     super.apply(transformed)
