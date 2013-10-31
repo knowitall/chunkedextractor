@@ -1,3 +1,5 @@
+ReleaseSettings.defaults
+
 organization := "edu.washington.cs.knowitall.chunkedextractor"
 
 name := "chunkedextractor"
