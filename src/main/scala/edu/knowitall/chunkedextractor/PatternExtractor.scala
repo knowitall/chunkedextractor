@@ -36,32 +36,30 @@ object PatternExtractor {
     openregex.Pattern.compile(pattern, (expression: String) => {
       val valuePattern = Pattern.compile("([\"'])(.*)\\1")
 
-      val baseExpr = new Expression.BaseExpression[Token](expression) {
-        val deserializeToken: String => (Token => Boolean) = (argument: String) => {
-          val Array(base, value) = argument.split("=")
+      val deserializeToken: String => (Token => Boolean) = (argument: String) => {
+        val Array(base, value) = argument.split("=")
 
-          val matcher = valuePattern.matcher(value)
-          if (!matcher.matches()) {
-            throw new IllegalArgumentException("Value not enclosed in quote (\") or ('): " + argument)
-          }
-
-          val string = matcher.group(2)
-
-          base match {
-            case "string" => new Expressions.StringExpression(string)
-            case "lemma" => new Expressions.LemmaExpression(string)
-            case "pos" => new Expressions.PostagExpression(string)
-            case "chunk" => new Expressions.ChunkExpression(string)
-          }
+        val matcher = valuePattern.matcher(value)
+        if (!matcher.matches()) {
+          throw new IllegalArgumentException("Value not enclosed in quote (\") or ('): " + argument)
         }
 
-        val logic: LogicExpression[Token] =
-          LogicExpression.compile(expression, deserializeToken andThen logicArgFromFunction[Token])
+        val string = matcher.group(2)
 
-        override def apply(token: Token): Boolean = logic.apply(token)
+        base match {
+          case "string" => new Expressions.StringExpression(string)
+          case "lemma" => new Expressions.LemmaExpression(string)
+          case "pos" => new Expressions.PostagExpression(string)
+          case "chunk" => new Expressions.ChunkExpression(string)
+        }
       }
 
-      baseExpr: Expression.BaseExpression[Token]
+      val logic: LogicExpression[Token] =
+        LogicExpression.compile(expression, deserializeToken andThen logicArgFromFunction[Token])
+
+      (token: Token) => {
+        logic.apply(token)
+      }
     })
 
   def intervalFromGroup(group: openregex.Pattern.Group[_]): Interval = {
