@@ -1,8 +1,5 @@
 package edu.knowitall.chunkedextractor
 
-import edu.knowitall.tool.chunk.ChunkedToken
-import edu.knowitall.collection.immutable.Interval
-
 import edu.washington.cs.knowitall.extractor.ReVerbExtractor
 import edu.washington.cs.knowitall.nlp.ChunkedSentence
 import edu.washington.cs.knowitall.commonlib.Range
@@ -11,6 +8,8 @@ import edu.washington.cs.knowitall.extractor.conf.ConfidenceFunction
 import edu.washington.cs.knowitall.util.DefaultObjects
 import edu.washington.cs.knowitall.extractor.conf.ReVerbOpenNlpConfFunction
 import edu.washington.cs.knowitall.nlp.extraction.ChunkedBinaryExtraction
+import org.allenai.nlpstack.core.ChunkedToken
+import org.allenai.common.immutable.Interval
 
 class ReVerb(val reverb: ReVerbExtractor, val conf: Option[ConfidenceFunction] = None) extends Extractor[Seq[ChunkedToken], BinaryExtractionInstance[ChunkedToken]] with JavaChunkedExtractor {
   def this() = this(new ReVerbExtractor, Some(new ReVerbOpenNlpConfFunction))

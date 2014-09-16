@@ -1,15 +1,18 @@
 package edu.knowitall.chunkedextractor.confidence
 
-import java.io.File
-import edu.knowitall.common.Resource
-import scala.io.Source
-import edu.knowitall.chunkedextractor.Relnoun
-import edu.knowitall.tool.chunk.OpenNlpChunker
-import edu.knowitall.tool.stem.MorphaStemmer
-import edu.knowitall.common.Analysis
-import edu.knowitall.tool.conf.BreezeLogisticRegressionTrainer
 import edu.knowitall.chunkedextractor.BinaryExtractionInstance
+import edu.knowitall.chunkedextractor.Relnoun
+import edu.knowitall.common.Analysis
+import edu.knowitall.common.Resource
+import edu.knowitall.tool.conf.BreezeLogisticRegressionTrainer
 import edu.knowitall.tool.conf.Labelled
+import java.io.File
+import org.allenai.nlpstack.chunk.OpenNlpChunker
+import org.allenai.nlpstack.lemmatize.MorphaStemmer
+import scala.io.Source
+import org.allenai.nlpstack.core.Postagger
+import org.allenai.nlpstack.postag.FactoriePostagger
+import org.allenai.nlpstack.tokenize.FactorieTokenizer
 
 object TrainChunkedExtractor extends App {
   case class Config(
@@ -45,6 +48,8 @@ object TrainChunkedExtractor extends App {
   def run(config: Config) = {
     val relnoun = new Relnoun()
 
+    val tokenizer = new FactorieTokenizer()
+    val postagger = new FactoriePostagger()
     val chunker = new OpenNlpChunker()
 
     val gold = Resource.using(Source.fromFile(config.goldFile)) { goldSource =>
@@ -56,7 +61,7 @@ object TrainChunkedExtractor extends App {
       Resource.using(Source.fromFile(config.inputFile)) { source =>
         for {
           line <- source.getLines.toList
-          chunked = chunker(line) map MorphaStemmer.lemmatizePostaggedToken
+          chunked = chunker.chunk(tokenizer, postagger)(line) map MorphaStemmer.lemmatizePostaggedToken
 
           inst <- relnoun.extract(chunked)
 

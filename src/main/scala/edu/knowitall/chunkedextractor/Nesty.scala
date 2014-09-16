@@ -1,14 +1,16 @@
 package edu.knowitall
 package chunkedextractor
 
-import edu.knowitall.tool.chunk.ChunkedToken
-import edu.knowitall.tool.chunk.OpenNlpChunker
-import edu.knowitall.collection.immutable.Interval
-import edu.knowitall.tool.stem.MorphaStemmer
-import edu.knowitall.tool.stem.Lemmatized
 import edu.knowitall.openregex
-
+import org.allenai.common.immutable.Interval
+import org.allenai.nlpstack.chunk.OpenNlpChunker
+import org.allenai.nlpstack.core.ChunkedToken
+import org.allenai.nlpstack.core.Lemmatized
+import org.allenai.nlpstack.core.Token
+import org.allenai.nlpstack.lemmatize.MorphaStemmer
 import scala.collection.JavaConverters._
+import org.allenai.nlpstack.postag.FactoriePostagger
+import org.allenai.nlpstack.tokenize.FactorieTokenizer
 
 class Nesty
   extends BinaryPatternExtractor[Nesty.ExtractionInstance](Nesty.pattern) {
@@ -46,7 +48,7 @@ class Nesty
   }
 
   override def buildExtraction(tokens: Seq[PatternExtractor.Token], m: openregex.Pattern.Match[PatternExtractor.Token]) = {
-    implicit def patternTokenAsToken2(lemmatized: PatternExtractor.Token): edu.knowitall.tool.tokenize.Token = lemmatized.token
+    implicit def patternTokenAsToken2(lemmatized: PatternExtractor.Token): Token = lemmatized.token
     val relation = ExtractionPart.fromSentenceTokens[Nesty.Token](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("baseRelation").get))
 
     val extr = new Nesty.NestedExtraction(
@@ -143,13 +145,15 @@ object Nesty {
       System.out.println(Nesty.pattern)
     } else {
       System.out.println("Creating the sentence chunker... ")
+      val tokenizer = new FactorieTokenizer()
+      val postagger = new FactoriePostagger()
       val chunker = new OpenNlpChunker()
       val stemmer = new MorphaStemmer()
       System.out.println("Please enter a sentence:")
 
       try {
         for (line <- scala.io.Source.stdin.getLines) {
-          val chunked = chunker.chunk(line)
+          val chunked = chunker.chunk(tokenizer, postagger)(line)
           val tokens = chunked map stemmer.lemmatizeToken
 
           for (extraction <- nesty(tokens)) {

@@ -7,9 +7,10 @@ import scala.collection.JavaConverters.seqAsJavaListConverter
 
 import com.google.common.base.{Function => GuavaFunction}
 
-import edu.knowitall.collection.immutable.Interval
-import edu.knowitall.tool.chunk.ChunkedToken
-import edu.knowitall.tool.stem.Lemmatized
+import org.allenai.common.immutable.Interval
+import org.allenai.nlpstack.core.ChunkedToken
+import org.allenai.nlpstack.core.Token
+import org.allenai.nlpstack.core.Lemmatized
 
 import edu.knowitall.openregex
 import edu.washington.cs.knowitall.logic.{Expression => LExpression}
@@ -20,9 +21,6 @@ import edu.washington.cs.knowitall.regex.RegularExpression
 
 object PatternExtractor {
   type Token = Lemmatized[ChunkedToken]
-  object Token {
-    implicit def patternTokenAsToken(lemmatized: PatternExtractor.Token): edu.knowitall.tool.tokenize.Token = lemmatized.token
-  }
 
   implicit def guavaFromFunction[A, B](f: A => B) = new GuavaFunction[A, B] {
     override def apply(a: A) = f(a)
@@ -68,7 +66,7 @@ object PatternExtractor {
     if (interval.start == -1 || interval.end == -1) {
       Interval.empty
     } else {
-      interval
+      Interval.open(interval.start, interval.end)
     }
   }
 }

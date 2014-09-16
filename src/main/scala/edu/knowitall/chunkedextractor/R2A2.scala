@@ -1,7 +1,7 @@
 package edu.knowitall.chunkedextractor
 
-import edu.knowitall.tool.chunk.ChunkedToken
-import edu.knowitall.collection.immutable.Interval
+import org.allenai.nlpstack.core.ChunkedToken
+import org.allenai.common.immutable.Interval
 
 import edu.washington.cs.knowitall.extractor.ReVerbExtractor
 import edu.washington.cs.knowitall.commonlib.Range

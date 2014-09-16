@@ -3,15 +3,19 @@ package edu.knowitall.chunkedextractor
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
-import edu.knowitall.tool.chunk.OpenNlpChunker
-import edu.knowitall.tool.stem.MorphaStemmer
+import org.allenai.nlpstack.tokenize.FactorieTokenizer
+import org.allenai.nlpstack.postag.FactoriePostagger
+import org.allenai.nlpstack.chunk.OpenNlpChunker
+import org.allenai.nlpstack.lemmatize.MorphaStemmer
 
 @RunWith(classOf[JUnitRunner])
 object NestySpecTest extends Specification {
   def extract(sentence: String) = {
+    val tokenizer = new FactorieTokenizer()
+    val postagger = new FactoriePostagger()
     val chunker = new OpenNlpChunker
     val nesty = new Nesty
-    val chunked = chunker.chunk(sentence)
+    val chunked = chunker.chunk(tokenizer, postagger)(sentence)
     val lemmatized = chunked.map(MorphaStemmer.lemmatizeToken)
     nesty(lemmatized)
   }

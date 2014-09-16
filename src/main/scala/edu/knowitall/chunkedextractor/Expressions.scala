@@ -2,8 +2,8 @@ package edu.knowitall
 package chunkedextractor
 
 import java.util.regex.Pattern
-import edu.knowitall.tool.stem.Lemmatized
-import edu.knowitall.tool.chunk.ChunkedToken
+import org.allenai.nlpstack.core.Lemmatized
+import org.allenai.nlpstack.core.ChunkedToken
 
 object Expressions {
   type Token = Lemmatized[ChunkedToken]

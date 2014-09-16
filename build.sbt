@@ -1,12 +1,12 @@
 ReleaseSettings.defaults
 
-organization := "edu.washington.cs.knowitall.chunkedextractor"
+organization := "org.allenai.chunkedextractor"
 
 name := "chunkedextractor"
 
 description := "Wrapper and implementation for extractors of chunked sentences."
 
-crossScalaVersions := Seq("2.10.3")
+crossScalaVersions := Seq("2.10.4")
 
 scalaVersion <<= crossScalaVersions { (vs: Seq[String]) => vs.head }
 
@@ -14,9 +14,9 @@ libraryDependencies ++= Seq(
     "edu.washington.cs.knowitall" %% "openregex-scala" % "1.1.2",
     "edu.washington.cs.knowitall" % "reverb-core" % "1.4.3",
     "edu.washington.cs.knowitall.nlptools" %% "nlptools-conf-breeze" % "2.4.4",
-    "edu.washington.cs.knowitall.nlptools" %% "nlptools-core" % "2.4.4",
-    "edu.washington.cs.knowitall.nlptools" %% "nlptools-chunk-opennlp" % "2.4.4",
-    "edu.washington.cs.knowitall.nlptools" %% "nlptools-stem-morpha" % "2.4.4",
+    "org.allenai.nlpstack" %% "nlpstack-core" % "0.12",
+    "org.allenai.nlpstack" %% "nlpstack-chunk" % "0.12",
+    "org.allenai.nlpstack" %% "nlpstack-lemmatize" % "0.12",
     "junit" % "junit" % "4.11" % "test",
     "org.specs2" % "specs2" % "1.12.3" % "test" cross CrossVersion.binaryMapped {
       case "2.9.3" => "2.9.2"
@@ -28,7 +28,7 @@ scalacOptions ++= Seq("-unchecked", "-deprecation")
 
 licenses := Seq("Academic License" -> url("http://reverb.cs.washington.edu/LICENSE.txt"))
 
-homepage := Some(url("http://github.com/knowitall/chunkedextractor"))
+homepage := Some(url("http://github.com/allenai/chunkedextractor"))
 
 resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 

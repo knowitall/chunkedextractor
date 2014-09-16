@@ -1,11 +1,11 @@
 package edu.knowitall.chunkedextractor.confidence
 
-import org.slf4j.LoggerFactory
-import edu.knowitall.tool.conf.impl.LogisticRegression
-import edu.knowitall.tool.conf.FeatureSet
-import java.net.URL
 import edu.knowitall.chunkedextractor.BinaryExtractionInstance
-import edu.knowitall.tool.chunk.ChunkedToken
+import org.allenai.nlpstack.core.ChunkedToken
+import edu.knowitall.tool.conf.FeatureSet
+import edu.knowitall.tool.conf.impl.LogisticRegression
+import java.net.URL
+import org.slf4j.LoggerFactory
 
 object ChunkedExtractorConfidenceFunction {
   val logger = LoggerFactory.getLogger(this.getClass)

@@ -1,10 +1,10 @@
 package edu.knowitall
 package chunkedextractor
 
-import edu.knowitall.collection.immutable.Interval
-import edu.knowitall.tool.stem.Lemmatized
-import edu.knowitall.tool.chunk.ChunkedToken
-import edu.knowitall.tool.tokenize.Token
+import org.allenai.nlpstack.core.ChunkedToken
+import org.allenai.nlpstack.core.Lemmatized
+import org.allenai.nlpstack.core.Token
+import org.allenai.common.immutable.Interval
 
 case class ExtractionPart[+T <% Token](text: String, tokens: Seq[T], tokenInterval: Interval) {
   override def toString = text

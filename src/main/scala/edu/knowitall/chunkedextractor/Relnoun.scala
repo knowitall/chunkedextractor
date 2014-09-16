@@ -1,19 +1,19 @@
 package edu.knowitall
 package chunkedextractor
 
-import edu.knowitall.tool.chunk.ChunkedToken
 import edu.knowitall.collection.immutable.Interval
-import edu.knowitall.tool.chunk.OpenNlpChunker
-import edu.knowitall.tool.stem.MorphaStemmer
-import edu.knowitall.tool.stem.Lemmatized
-
+import org.allenai.nlpstack.chunk.OpenNlpChunker
+import org.allenai.nlpstack.core.ChunkedToken
+import org.allenai.nlpstack.core.Lemmatized
+import org.allenai.nlpstack.lemmatize.MorphaStemmer
 import edu.knowitall.common.Timing
-
-import scala.collection.JavaConverters._
 import edu.knowitall.openregex
 import edu.washington.cs.knowitall.regex.Match
 import edu.washington.cs.knowitall.regex.RegularExpression
 import Relnoun._
+import scala.collection.JavaConverters._
+import org.allenai.nlpstack.tokenize.FactorieTokenizer
+import org.allenai.nlpstack.postag.FactoriePostagger
 
 class Relnoun(val encloseInferredWords: Boolean = true, val includeReverbRelnouns: Boolean = true)
 extends Extractor[Seq[PatternExtractor.Token], BinaryExtractionInstance[Relnoun.Token]] {
@@ -653,6 +653,8 @@ object Relnoun {
     } else {
 
       System.err.println("Creating the sentence chunker... ")
+      val tokenizer = new FactorieTokenizer()
+      val postagger = new FactoriePostagger()
       val chunker = new OpenNlpChunker()
       val stemmer = new MorphaStemmer()
       System.err.println("Please enter a sentence:")
@@ -660,7 +662,7 @@ object Relnoun {
       Timing.timeThen {
         try {
           for (line <- scala.io.Source.stdin.getLines) {
-            val chunked = chunker.chunk(line);
+            val chunked = chunker.chunk(tokenizer, postagger)(line);
             val tokens = chunked map stemmer.lemmatizeToken
 
             for (inst <- relnoun(tokens)) {

@@ -1,6 +1,6 @@
 package edu.knowitall.chunkedextractor
 
-import edu.knowitall.tool.chunk.ChunkedToken
+import org.allenai.nlpstack.core.ChunkedToken
 
 trait JavaChunkedExtractor {
   def apply(tokens: Seq[ChunkedToken]): Seq[BinaryExtractionInstance[ChunkedToken]]
