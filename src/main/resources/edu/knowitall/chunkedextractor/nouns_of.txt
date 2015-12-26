@@ -1,0 +1,4 @@
+emperor
+mayor
+president
+minister

@@ -83,11 +83,16 @@ extends Extractor[Seq[PatternExtractor.Token], B] {
     for (
       m <- matches;
       extraction = buildExtraction(tokens, m);
+        
       if !filterExtraction(extraction)
-    ) yield extraction
+    ) yield extraction.get
   }
 
-  protected def filterExtraction(extraction: B): Boolean = false
+  protected def filterExtraction(extraction: Option[B]): Boolean = 
+    extraction match {
+      case None => true
+      case _ => false
+    }
 
-  protected def buildExtraction(tokens: Seq[PatternExtractor.Token], m: openregex.Pattern.Match[PatternExtractor.Token]): B
+  protected def buildExtraction(tokens: Seq[PatternExtractor.Token], m: openregex.Pattern.Match[PatternExtractor.Token]): Option[B]
 }

@@ -57,7 +57,7 @@ class Nesty
         relation,
         ExtractionPart.fromSentenceTokens[Nesty.Token](tokens.map(_.token), PatternExtractor.intervalFromGroup(m.group("baseArg2").get))))
 
-    new Nesty.ExtractionInstance(extr, tokens.map(_.token))
+    Some(new Nesty.ExtractionInstance(extr, tokens.map(_.token)))
   }
 }
 
