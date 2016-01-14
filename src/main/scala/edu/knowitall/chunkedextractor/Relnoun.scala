@@ -83,6 +83,12 @@ object Relnoun {
     
     val demonyms_iter = Source.fromInputStream(demonyms_url.openStream()).getLines().map(_.split(","))
     
+    val prp$_mapping_url = Option(this.getClass.getResource("prp_mapping.csv")).getOrElse {
+      throw new IllegalArgumentException("Could not load prp$_mapping.csv")
+    }
+    
+    val prp$_mapping_iter = Source.fromInputStream(prp$_mapping_url.openStream()).getLines().map(_.split(","))
+    
     val nouns_url = Option(this.getClass.getResource("nouns.txt")).getOrElse {
       throw new IllegalArgumentException("Could not load nouns.txt")
     }
@@ -97,6 +103,12 @@ object Relnoun {
     
     val relnoun_prefixes_url = Option(this.getClass.getResource("relnoun_prefixes.txt")).getOrElse {
       throw new IllegalArgumentException("Could not load relnoun_prefixes.txt")
+    }
+    
+    var prp$_mapping_map = scala.collection.mutable.Map[String, String]()
+    while(prp$_mapping_iter.hasNext) {
+      val arr = prp$_mapping_iter.next
+      prp$_mapping_map += arr(0) -> arr(1)
     }
     
     var demonyms_map = scala.collection.mutable.Map[String, String]()
@@ -114,17 +126,24 @@ object Relnoun {
     }
     
     val (demonyms_key, demonyms_val) = demonyms_map.toSeq.unzip
-    val demonyms = demonyms_key.flatMap { x => x.split(" ") }
-    val locations = (demonyms_key ++ demonyms_val).flatMap { x => x.split(" ") }
+    val locations = (demonyms_key ++ demonyms_val)
 
     val nounChunk = "(?:<chunk=\"B-NP\"> <chunk=\"I-NP\">*)"
     val properNounChunk = "(?:<chunk=\"B-NP\" & pos=\"NNPS?\"> <chunk=\"I-NP\">*) | (?:<chunk=\"B-NP\" & pos=\"NNPS?\"> <chunk=\"I-NP\">* <chunk=\"I-NP\" & pos=\"NNPS?\"> <chunk=\"I-NP\">*)";
-    val properRelnounChunk = "(<relnoun>: <string=\"${relnoun}\" & pos=\"NN|NNP\">+) | (<ofNoun>: <string=\"${ofNoun}\" & pos=\"NN|NNP\">+)"    
+    val properRelnounChunk = "(<relnoun>: <string=\"${relnoun}\" & pos=\"NN|NNP\">+) | (<ofNoun>: <string=\"${ofNoun}\" & pos=\"NN|NNP\">+)"
+    
+    val pronoun = "<pos=\"PRP\">"
+    val pronoun_possessive = "<pos=\"PRP\\$\">"
 
     val relnoun = "(string='${relnoun}' | string='${ofNoun}')";
-
-    val relnoun_prefix = "<string=\"${relnoun_prefixes}\" & pos=\"JJS?|VBDS?|VBNS?|NNS?|NNPS?|RBS?\">*"
-    //val relnoun_prefix = "<pos=\"JJS?|VBDS?|VBNS?|NNS?|NNPS?|RBS?\" & !" + relnoun + "& !(string=\"${demonyms}\")>*"//TODO
+    val relnoun_prefix = "string=\"${relnoun_prefixes}\""
+    val relnoun_prefix_noPrefixCheck = "!(string=\"${demonyms}\")"
+    
+    val relnoun_prefix_pos =  " & pos=\"JJS?|VBDS?|VBNS?|NNS?|NNPS?|RBS?\" & !(string=\"${orgwords}\")"
+    
+    val relnoun_prefix_tagged = "<" + relnoun_prefix + relnoun_prefix_pos + ">*"
+    val relnoun_prefix_tagged_noPrefixCheck = "<" + relnoun_prefix_noPrefixCheck + relnoun_prefix_pos + ">*"
+    
 
     val input_nouns = Source.fromInputStream(nouns_url.openStream()).getLines().map(_.trim()).toArray
     val ex_nouns = input_nouns.map { x => "ex-"+x }
@@ -148,7 +167,7 @@ object Relnoun {
       .replace("${ofNoun}", ofNouns.mkString("|"))
       .replace("${orgwords}", orgs.mkString("|"))
       .replace("${relnoun_prefixes}", adjs.mkString("|"))
-      .replace("${demonyms}", demonyms.mkString("|"))
+      .replace("${demonyms}", locations.mkString("|"))
 
   protected def finalizeExtraction[B](m: openregex.Pattern.Match[PatternExtractor.Token], encloseInferredWords: Boolean, patternTokens: Seq[PatternExtractor.Token], 
       arg1: ExtractionPart[ChunkedToken], relation: ExtractionPart[ChunkedToken], arg2: ExtractionPart[ChunkedToken], 
@@ -159,8 +178,16 @@ object Relnoun {
     var isValidExtraction = true
     var arg2_modified = arg2
     
-    //Setting arg2 as [UNKNOWN] if not present
-    if(arg2.text == "" && includeUnknownArg2) arg2_modified = ExtractionPart.fromSentenceTokens(tokens, relation.tokenInterval, UNKNOWN)
+    //replacing PRP$
+    val prp$MappingVal = Relnoun.prp$_mapping_map.get(arg2.text)
+    arg2_modified = prp$MappingVal match {
+      case Some(s) => ExtractionPart.fromSentenceTokens(tokens, arg2_modified.tokenInterval, s)
+      case None => arg2_modified
+    }
+    
+    //Setting arg2 as [UNKNOWN] if not present or if "its"(possible came by AdjectiveDescriptorExtractor(PRP$))
+    if((arg2.text == "" || arg2.text == "its") && includeUnknownArg2) arg2_modified = ExtractionPart.fromSentenceTokens(tokens, relation.tokenInterval, UNKNOWN)
+    if(arg1.text=="it" || arg2_modified.text == "its") isValidExtraction = false
     
     //replacing demonyms
     
@@ -240,7 +267,7 @@ object Relnoun {
   /**
    * *
    * Extracts relations from phrases such as:
-   *  "Chris Curran, a lawyer for Al-Rajhi Banking"
+   *  "Chris Curran, a lawyer for Al-Rajhi Banking."
    *  (Chris Curran, [is] a lawyer for, Al-Rajhi Banking)
    *
    * @author schmmd
@@ -264,7 +291,7 @@ object Relnoun {
     object AppositiveExtractor extends BaseExtractor {
         val pattern: String =
             // {proper noun}
-            "(" + properNounChunk + ")" +
+            "(" + properNounChunk + "|" + pronoun + ")" +
             // {comma}
             "<string=\",\">" +
             // {article}
@@ -278,7 +305,7 @@ object Relnoun {
     
      /***
      * Extracts relations from phrases such as:
-     *  "Lauren Faust, a cartoonist, "
+     *  "Lauren Faust, a cartoonist,"
      *  (Lauren Faust; [is]; a cartoonist)
      */
     class AppositiveExtractor2(private val encloseInferredWords: Boolean, private val includeUnknownArg2: Boolean)
@@ -301,7 +328,7 @@ object Relnoun {
     object AppositiveExtractor2 extends BaseExtractor {
         val pattern: String =
             // {proper noun}
-            "(" + properNounChunk + ")" +
+            "(" + properNounChunk + "|" + pronoun + ")" +
             // {comma}
             "<string=\",\">" +
             // adverb
@@ -311,7 +338,7 @@ object Relnoun {
             // {adjective or noun}
             "<pos=\"JJ|NN\">*" + 
             // {relnoun} {preposition}
-            relnoun_prefix + " <" + relnoun + "& pos=\"NN|NNP\">)" +
+            relnoun_prefix_tagged_noPrefixCheck + " <" + relnoun + "& pos=\"NN|NNP\">)" +
              "<string=\",|.\">"
     }
     
@@ -356,19 +383,18 @@ object Relnoun {
   }
 
   //arg1: shall contain atleast one nnp that is not a {orgword}
-  //arg2: allow “relnoun_prefixes” followed by NNP ("Foreign Ministry spokesman Qin Gang.")
+  //arg2: allow “relnoun_prefixes” followed by NNP ("Foreign Ministry spokesman Qin Gang.") 
   //arg2: allow pos=JJ only if the word is in the list of demonyms ("outgoing Chairperson Bonnie Peng.")
-  //
   object AdjectiveDescriptorExtractor extends BaseExtractor {
     val pattern =
       // {adjective}
-      "(<adj>: <pos=\"JJ|VBD|VBN\" & !(string=\"${demonyms}\")>*)" +
-      "(<arg2>: (<string=\"${relnoun_prefixes}\">* <!(string=\"${relnoun_prefixes}\") & (pos=\"NNPS?\") >+) | (<!(string=\"${relnoun_prefixes}\") & (pos=\"NNPS?\" | (pos=\"JJ\" & string=\"${demonyms}\")) >+)?)" +
-        // {relnoun}
-        "(<pred>: " + relnoun_prefix + properRelnounChunk + ")" +
-        // {comma}
-        "<string=\",\">?" +
-        "(<arg1>: <pos=\"nn\">* <!(string=\"${orgwords}\") & pos=\"nnp\">+ <pos=\"nn|nnp\">*)";
+      "(<adj>: <pos=\"JJ|VBD|VBN|RB\" & !(string=\"${demonyms}\") & !(string=\"${orgwords}\")>*)" +
+      "(((<arg2>: (<pos=\"NNPS?\">* " + "<!" + relnoun_prefix + " & pos=\"NNPS?\" >+) | (" + pronoun_possessive + ")? )" +      
+      "(<pred>: " + relnoun_prefix_tagged + properRelnounChunk + "))" + "|" +
+      "((<arg2>: (<pos=\"NNPS?|JJ\" & string=\"${demonyms}\" >+) )" +      
+      "(<pred>: " + relnoun_prefix_tagged_noPrefixCheck + properRelnounChunk + ")))" +
+      "<string=\",\">?" +         // {comma}
+      "(<arg1>: <pos=\"nn\">* <!(string=\"${orgwords}\") & pos=\"nnp\">+ <pos=\"nn|nnp\">*)";
   }
   
   /**
@@ -404,9 +430,9 @@ object Relnoun {
         // {possessive}
         "<pos=\"POS\">" +
         // {adverb} {adjective} {relnoun}
-        "(<pos=\"RB\">*" + relnoun_prefix + properRelnounChunk + ")" +
+        "(<pos=\"RB\">*" + relnoun_prefix_tagged_noPrefixCheck + properRelnounChunk + ")" +
         // {proper noun} (no preposition)
-				"(<arg1>: <pos=\"NN\">* <pos=\"NNP\">+ <pos=\"NN|NNP\">*)";
+        "(<arg1>: <pos=\"NN\">* <!(string=\"${orgwords}\") & pos=\"NNP\">+ <pos=\"NN|NNP\">*)";
   }
   
   /**
@@ -441,7 +467,7 @@ object Relnoun {
         // {possessive}
         "<pos=\"POS\">" +
         // {adverb} {adjective} {relnoun}
-        "(<pos=\"RB\">* <pos=\"JJ|VBD|VBN\">*" + relnoun_prefix + properRelnounChunk + ")" + 
+        "(<pos=\"RB\">* <pos=\"JJ|VBD|VBN\">*" + relnoun_prefix_tagged_noPrefixCheck + properRelnounChunk + ")" + 
         // {comma}
         "<string=\",\">" +
         // {proper np chunk}
@@ -479,7 +505,7 @@ object Relnoun {
         // {possessive}
         "<pos='POS'>" +
         // {adverb} {adjective} {relnoun}
-        "(<pos='RB'>* <pos='JJ|VBD|VBN'>*" + relnoun_prefix + properRelnounChunk + ")" +
+        "(<pos='RB'>* <pos='JJ|VBD|VBN'>*" + relnoun_prefix_tagged_noPrefixCheck + properRelnounChunk + ")" +
         // be
         "(<lemma_be>: <lemma=\"be\">)" +
         // {proper np chunk}
@@ -513,11 +539,11 @@ object Relnoun {
   object IsPossessiveExtractor extends BaseExtractor {
     val pattern =
       // {nouns} (no preposition)
-      "(" + properNounChunk + ")" +
+      "(" + properNounChunk + "|" + pronoun + ")" +
         "(<lemma=\"be\">)" +
         "(<pos='NNS?|NNPS?'>+)" +
         "<pos='POS'>" +
-        "(<pos=\"RB\">* <pos=\"JJ|VBD|VBN\">*" + relnoun_prefix + properRelnounChunk + ")";
+        "(<pos=\"RB\">* <pos=\"JJ|VBD|VBN\">*" + relnoun_prefix_tagged_noPrefixCheck + properRelnounChunk + ")";
   }
 
   /**
@@ -534,7 +560,7 @@ object Relnoun {
       val tokens = patternTokens.map(_.token)
       val relation = ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups(1)), m.groups(3).tokens.map(_.token.string).mkString(" ") + " " + m.groups(1).tokens.map(_.token.string).mkString(" "))
 
-      val arg1 = ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups(4)))
+      val arg1 = ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.group("arg1").get))
       val arg2 = ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups(2)))
       finalizeExtraction(m, encloseInferredWords, patternTokens, arg1, relation, arg2, includeUnknownArg2, false, false)
     }
@@ -546,14 +572,13 @@ object Relnoun {
         "<string='of'>) " +
         "(<chunk='.-NP'> <chunk='I-NP'>* <string='of'>? <chunk='.-NP'>? <chunk='I-NP'>*) " +
         "(<lemma='be'>) " +
-        "(<chunk='B-NP'> <chunk='I-NP'>*)";
+        "(<arg1>: (<chunk='B-NP'> <chunk='I-NP'>*) |" + pronoun + ")";
   }
   
   /**
    * Extracts relations from phrases such as:
-   *  "The Chairperson of the Commission of the African Union, Jean Ping, on Tuesday..."
-   *  "The Chairperson of the Commission of the African Union, Jean Ping."
-   *  (Jean Ping; [is] The Chairperson of; the Commission of the African Union)
+   *  "the father of Michael, John,"
+   *  (John; [is] the father of; Michael)
    *  
    *  @author harinder
    */
@@ -578,7 +603,7 @@ object Relnoun {
         "(<chunk='.-NP'> <chunk='I-NP'>* <string='of'>? <chunk='.-NP'>? <chunk='I-NP'>*) " +
         "(<string=\",\">) " +
         //{proper np chunk}
-        "(" + properNounChunk + ")" +
+        "(" + properNounChunk + "|" + pronoun + ")" +
         "(<string=\",\" | string=\".\">) " ;
   }
   
@@ -610,16 +635,14 @@ object Relnoun {
   object PossessiveReverseExtractor extends BaseExtractor {
     val pattern =
       // {proper noun} (no preposition)
-      "(" + properNounChunk + ")" +
+      "(" + properNounChunk + "|" + pronoun + ")" +
         // comma
         "<string=\",\">" +
         // {np chunk}
         "(<chunk=\"B-NP\"> <chunk=\"I-NP\">*)" +
         // {possessive}
         "<pos=\"POS\">" +
-        "(<pos=\"RB\">* <pos=\"JJ|VBD|VBN\">*" + relnoun_prefix + properRelnounChunk + ")" +
-        // make sure the relnoun isn't part of a larger np-chunk
-        // consider: "...spokesman Suleiman Abu Ghaith , Al-Qaeda 's military chief Saif al-Adel , and two of Osama bin Laden 's sons..."
+        "(<pos=\"RB\">* <pos=\"JJ|VBD|VBN\">*" + relnoun_prefix_tagged_noPrefixCheck + properRelnounChunk + ")" +
         "(?:<!chunk=\"I-NP\">|$)";
   }
 
@@ -639,22 +662,26 @@ object Relnoun {
 
     override def buildExtraction(patternTokens: Seq[PatternExtractor.Token], m: openregex.Pattern.Match[PatternExtractor.Token]) = {
       val tokens = patternTokens.map(_.token)
-      val relation = ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.group("pred").get), (m.groups(2).tokens.map(_.token.string) ++ m.group("pred").get.tokens.map(_.token.string)).mkString(" "))
+      val relation = ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.group("pred").get), 
+          (m.groups(2).tokens.map(_.token.string) ++ m.group("pred").get.tokens.map(_.token.string)).mkString(" "))
 
-      val arg1 = ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups(1)))
-      val arg2 = ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.groups(3)))
+      val arg1 = ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.group("arg1").get))
+      val arg2 = ExtractionPart.fromSentenceTokens(tokens, PatternExtractor.intervalFromGroup(m.group("arg2").get))
       finalizeExtraction(m, encloseInferredWords, patternTokens, arg1, relation, arg2, includeUnknownArg2, true, true)
     }
   }
 
   object ProperNounAdjectiveExtractor extends BaseExtractor {
     val pattern =
-      "(" + properNounChunk + ")" +
+      "(<arg1>: " + properNounChunk + "|" + pronoun + ")" +
         "<string=\",\">" +
         "(<string=\"a|an|the\"> <pos=\"JJ|VBD|VBN\">*)" +
-        "(<arg2>: (<string=\"${relnoun_prefixes}\">* <!(string=\"${relnoun_prefixes}\") & (pos=\"NNS?|NNPS?\") >+) | (<!(string=\"${relnoun_prefixes}\") & (pos=\"NNS?|NNPS?\" | (pos=\"JJ\" & string=\"${demonyms}\")) >+))" +
-        "(<pred>: <pos=\"NN\">*" + relnoun_prefix + properRelnounChunk + ")"
+        "(((<arg2>: (<pos=\"NNS?|NNPS?\">* " + "<!" + relnoun_prefix + " & pos=\"NNS?|NNPS?\" >+) )" +      
+        "(<pred>: " + relnoun_prefix_tagged + properRelnounChunk + "))" + "|" +
+        "((<arg2>: (<pos=\"NNS?|NNPS?|JJ\" & string=\"${demonyms}\" >+) )" +      
+        "(<pred>: " + relnoun_prefix_tagged_noPrefixCheck + properRelnounChunk + ")))"
   }
+  
   
   /***
    * A class that represents the command line configuration
@@ -731,7 +758,7 @@ object Relnoun {
   
    def run(config: Config) {
     System.out.println("Creating the relational noun extractor... ")
-    val relnoun = new Relnoun(true, true, false)
+    val relnoun = new Relnoun(true, true, true)
     val conf = confidence.RelnounConfidenceFunction.loadDefaultClassifier()
     
     config.inputFile.foreach { file =>
@@ -783,3 +810,4 @@ object Relnoun {
     }
   }
 }
+
