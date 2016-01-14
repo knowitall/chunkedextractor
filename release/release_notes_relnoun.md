@@ -1,5 +1,13 @@
 # Release Notes
 
+## Version 2.2.0 (01/15/2016)
+
+* Extended patterns for pronouns
+	* "His father John, => (John; [is] father [of]; Him)"
+* Updated relnoun_prefixes list
+* (Selective Prefix check) Less dependency of relnoun_prefixes : Better extractions in the sentences with relational prefixes
+	* "Iranian film director Jafar Panahi => (Jafar Panahi; [is] film director [of]; Iran)"
+
 ## Version 2.0.0 (12/30/2015)
 
 * Allows nnp relation words (previous version only allowed nn relation words)

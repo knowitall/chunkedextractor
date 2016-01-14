@@ -10,4 +10,5 @@ This project provides a common interface to the three extractors by using the nl
 
 ## Notifications
 
+* [01/15/2016][Relnoun] The version 2.2.0 is released ([release notes](https://github.com/knowitall/chunkedextractor/blob/master/release/release_notes_relnoun.md)).
 * [12/30/2015][Relnoun] The version 2.0.0 is released ([release notes](https://github.com/knowitall/chunkedextractor/blob/master/release/release_notes_relnoun.md)).
