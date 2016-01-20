@@ -81,13 +81,13 @@ object Relnoun {
       throw new IllegalArgumentException("Could not load demonyms.csv")
     }
     
-    val demonyms_iter = Source.fromInputStream(demonyms_url.openStream()).getLines().map(_.split(","))
+    val demonyms_iter = Source.fromInputStream(demonyms_url.openStream(),"UTF-8").getLines().map(_.split(","))
     
-    val prp$_mapping_url = Option(this.getClass.getResource("prp_mapping.csv")).getOrElse {
-      throw new IllegalArgumentException("Could not load prp$_mapping.csv")
+    val prp_mapping_url = Option(this.getClass.getResource("prp_mapping.csv")).getOrElse {
+      throw new IllegalArgumentException("Could not load prp_mapping.csv")
     }
     
-    val prp$_mapping_iter = Source.fromInputStream(prp$_mapping_url.openStream()).getLines().map(_.split(","))
+    val prp_mapping_iter = Source.fromInputStream(prp_mapping_url.openStream(),"UTF-8").getLines().map(_.split(","))
     
     val nouns_url = Option(this.getClass.getResource("nouns.txt")).getOrElse {
       throw new IllegalArgumentException("Could not load nouns.txt")
@@ -105,10 +105,10 @@ object Relnoun {
       throw new IllegalArgumentException("Could not load relnoun_prefixes.txt")
     }
     
-    var prp$_mapping_map = scala.collection.mutable.Map[String, String]()
-    while(prp$_mapping_iter.hasNext) {
-      val arr = prp$_mapping_iter.next
-      prp$_mapping_map += arr(0) -> arr(1)
+    var prp_mapping_map = scala.collection.mutable.Map[String, String]()
+    while(prp_mapping_iter.hasNext) {
+      val arr = prp_mapping_iter.next
+      prp_mapping_map += arr(0) -> arr(1)
     }
     
     var demonyms_map = scala.collection.mutable.Map[String, String]()
@@ -145,13 +145,13 @@ object Relnoun {
     val relnoun_prefix_tagged_noPrefixCheck = "<" + relnoun_prefix_noPrefixCheck + relnoun_prefix_pos + ">*"
     
 
-    val input_nouns = Source.fromInputStream(nouns_url.openStream()).getLines().map(_.trim()).toArray
+    val input_nouns = Source.fromInputStream(nouns_url.openStream(),"UTF-8").getLines().map(_.trim()).toArray
     val ex_nouns = input_nouns.map { x => "ex-"+x }
     val nouns = input_nouns ++ ex_nouns
     
-    private final val orgs = Source.fromInputStream(orgsWords_url.openStream()).getLines().map(_.trim()).toArray
-    private final val ofNouns = Source.fromInputStream(ofNouns_url.openStream()).getLines().map(_.trim()).toArray
-    private final val adjs = Source.fromInputStream(relnoun_prefixes_url.openStream()).getLines().map(_.trim()).toArray
+    private final val orgs = Source.fromInputStream(orgsWords_url.openStream(),"UTF-8").getLines().map(_.trim()).toArray
+    private final val ofNouns = Source.fromInputStream(ofNouns_url.openStream(),"UTF-8").getLines().map(_.trim()).toArray
+    private final val adjs = Source.fromInputStream(relnoun_prefixes_url.openStream(),"UTF-8").getLines().map(_.trim()).toArray
     
     val UNKNOWN = "[UNKNOWN]"
     val arg1_notAllowed = List("Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", 
@@ -178,14 +178,14 @@ object Relnoun {
     var isValidExtraction = true
     var arg2_modified = arg2
     
-    //replacing PRP$
-    val prp$MappingVal = Relnoun.prp$_mapping_map.get(arg2.text)
-    arg2_modified = prp$MappingVal match {
+    //replacing prp
+    val prpMappingVal = Relnoun.prp_mapping_map.get(arg2.text)
+    arg2_modified = prpMappingVal match {
       case Some(s) => ExtractionPart.fromSentenceTokens(tokens, arg2_modified.tokenInterval, s)
       case None => arg2_modified
     }
     
-    //Setting arg2 as [UNKNOWN] if not present or if "its"(possible came by AdjectiveDescriptorExtractor(PRP$))
+    //Setting arg2 as [UNKNOWN] if not present or if "its"(possible came by AdjectiveDescriptorExtractor(prp))
     if((arg2.text == "" || arg2.text == "its") && includeUnknownArg2) arg2_modified = ExtractionPart.fromSentenceTokens(tokens, relation.tokenInterval, UNKNOWN)
     if(arg1.text=="it" || arg2_modified.text == "its") isValidExtraction = false
     
@@ -810,4 +810,3 @@ object Relnoun {
     }
   }
 }
-
