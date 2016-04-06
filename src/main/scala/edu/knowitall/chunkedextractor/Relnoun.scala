@@ -123,6 +123,7 @@ object Relnoun {
       demonyms_map += ("Northern" + " " + arr(0)) -> ("Northern" + " " + arr(1))
       demonyms_map += ("Eastern" + " " + arr(0)) -> ("Eastern" + " " + arr(1))
       demonyms_map += ("Western" + " " + arr(0)) -> ("Western" + " " + arr(1))
+      demonyms_map += ("Central" + " " + arr(0)) -> ("Central" + " " + arr(1))
     }
     
     val (demonyms_key, demonyms_val) = demonyms_map.toSeq.unzip
