@@ -8,6 +8,10 @@ The chunked extractors project is a collection of three extractors.
 
 This project provides a common interface to the three extractors by using the nlptools project for chunking and lemmatization.
 
+## Google Group
+
+* ([knowitall_openie](https://groups.google.com/forum/#!forum/knowitall_openie)).
+
 ## Notifications
 
 * [01/15/2016][Relnoun] The version 2.2.0 is released ([release notes](https://github.com/knowitall/chunkedextractor/blob/master/release/release_notes_relnoun.md)).
