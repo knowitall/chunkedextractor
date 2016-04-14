@@ -10,7 +10,7 @@ This project provides a common interface to the three extractors by using the nl
 
 ## Google Group
 
-* ([knowitall_openie](https://groups.google.com/forum/#!forum/knowitall_openie)).
+* [knowitall_openie](https://groups.google.com/forum/#!forum/knowitall_openie)
 
 ## Notifications
 
