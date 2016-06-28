@@ -1,3 +1,5 @@
+** **DEPRECATED!** ** Please see https://github.com/allenai/openie-standalone, which has combined multiple projects into a single project that builds on Scala 2.11.
+
 # Chunked Extractors
 
 The chunked extractors project is a collection of three extractors.
