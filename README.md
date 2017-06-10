@@ -10,6 +10,10 @@ The chunked extractors project is a collection of three extractors.
 
 This project provides a common interface to the three extractors by using the nlptools project for chunking and lemmatization.
 
+## Citing Relnoun
+
+Harinder Pal, Mausam. "Demonyms and Compound Relational Nouns in Nominal Open IE". Workshop on Automated Knowledge Base Construction (AKBC) at NAACL. San Diego, CA, USA. June 2016.
+
 ## Google Group
 
 * [knowitall_openie](https://groups.google.com/forum/#!forum/knowitall_openie)
